@@ -3,6 +3,7 @@ import { state, nav, persist } from './state.js';
 import { todayISO, fmtDate } from './model.js';
 import { esc, toast, confirmSheet, askPin } from './ui.js';
 import { openWeeklySheet, reopenWeekly } from './weekly.js';
+import { exportJournal, lastBackup } from './backup.js';
 import { THEMES, APPEARANCES, currentTheme, currentAppearance, setTheme, setAppearance, scaleFor, isDark } from './themes.js';
 
 let showAllAttempts = false;
@@ -64,7 +65,7 @@ export function renderSettings(view) {
 
     <h3 class="section-label">Backup</h3>
     <section class="card list-card">
-      <button class="row-btn" data-export ${real ? '' : 'disabled'}><span>Export journal<span class="muted small block">An encrypted file. It opens only with your current PIN.</span></span><span class="chev">›</span></button>
+      <button class="row-btn" data-export ${real ? '' : 'disabled'}><span>Export journal<span class="muted small block">An encrypted file that opens only with your current PIN.${real && lastBackup(state.data) ? ` Last saved ${esc(fmtDate(lastBackup(state.data), { month: 'short', day: 'numeric', year: 'numeric' }))}.` : ''}</span></span><span class="chev">›</span></button>
       <label class="row-btn ${real ? '' : 'disabled'}"><span>Import journal<span class="muted small block">Replaces what's here. You'll need the backup's PIN.</span></span><span class="chev">›</span>
         <input type="file" accept=".supplemental,.json,application/json" data-import hidden ${real ? '' : 'disabled'}></label>
     </section>
@@ -139,7 +140,7 @@ export function renderSettings(view) {
     }
   });
   on('[data-change-pin]', changePin);
-  on('[data-export]', exportJournal);
+  on('[data-export]', async () => { if (await exportJournal()) renderSettings(view); });
   on('[data-erase]', erase);
   on('[data-demo-pin]', changeDemoPin);
   on('[data-weekly]', () => openWeeklySheet());
@@ -234,28 +235,6 @@ async function toggleBio(input, view) {
     toast(e.name === 'NotAllowedError' ? 'Face ID setup cancelled' : e.message);
   }
   renderSettings(view);
-}
-
-async function exportJournal() {
-  const text = vault.exportBackup();
-  const name = `supplemental-${todayISO()}.supplemental`;
-  const file = new File([text], name, { type: 'application/json' });
-  try {
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: 'Supplemental backup' });
-      return;
-    }
-  } catch (e) {
-    if (e.name === 'AbortError') return;
-  }
-  const url = URL.createObjectURL(file);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = name;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 5000);
 }
 
 async function importJournal(input, view) {

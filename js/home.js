@@ -3,6 +3,7 @@ import { SCORE_COLORS, scoreClass, iso, todayISO, addDays, fmtDate, averageScore
 import { esc, openSheet } from './ui.js';
 import { openDay } from './day.js';
 import { shouldShowWeekly, weeklyHTML, bindWeekly } from './weekly.js';
+import { backupDue, backupNagHTML, bindBackupNag } from './backup.js';
 
 let monthOffset = 0; // 0 = the 12 months ending this month
 
@@ -23,6 +24,8 @@ export function renderHome(view) {
         <p class="muted">${esc(fmtDate(today, { weekday: 'long', month: 'long', day: 'numeric' }))}</p>
       </div>
     </header>
+
+    ${backupDue(data) ? backupNagHTML(data) : ''}
 
     ${shouldShowWeekly(data) ? weeklyHTML(data) : ''}
 
@@ -66,6 +69,7 @@ export function renderHome(view) {
   drawHeatmap(view);
   const weekly = view.querySelector('.weekly');
   if (weekly) bindWeekly(weekly, () => renderHome(view));
+  bindBackupNag(view, () => renderHome(view));
   view.querySelectorAll('[data-shift]').forEach((b) => b.addEventListener('click', () => {
     monthOffset = Math.min(0, monthOffset + Number(b.dataset.shift));
     renderHome(view);

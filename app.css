@@ -531,3 +531,12 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .wk-reflect .wk-meter { grid-column: 1 / -1; height: 4px; border-radius: 3px; background: var(--line); overflow: hidden; }
 .wk-meter i { display: block; height: 100%; background: #ef5a5a; border-radius: 3px; }
 .wk-meter.goal i { background: #34c39a; }
+
+/* Monthly backup reminder */
+.backup-nag { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; }
+.backup-nag-icon {
+  flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center;
+  background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent);
+}
+.backup-nag-text { flex: 1; min-width: 0; }
+.backup-nag-btns { display: flex; gap: 8px; margin-top: 10px; }

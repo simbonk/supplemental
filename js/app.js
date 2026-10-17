@@ -244,7 +244,7 @@ document.addEventListener('visibilitychange', () => {
 });
 window.addEventListener('pagehide', lock);
 window.addEventListener('blur', () => {
-  if (state.hasVault && state.mode) document.body.classList.add('privacy');
+  if (state.hasVault && state.mode && !state.sharing) document.body.classList.add('privacy');
 });
 window.addEventListener('focus', () => document.body.classList.remove('privacy'));
 

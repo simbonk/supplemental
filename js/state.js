@@ -8,6 +8,7 @@ export const state = {
   data: null,
   session: null,
   hasVault: false,
+  sharing: false, // true while the iOS share sheet is up
 };
 
 // Set by app.js
