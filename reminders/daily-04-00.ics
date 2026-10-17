@@ -12,7 +12,6 @@ DURATION:PT5M
 RRULE:FREQ=DAILY
 SUMMARY:Supplemental
 DESCRIPTION:How was today? Take a minute to log it.
-URL:https://supplemental-nine.vercel.app/#new
 BEGIN:VALARM
 ACTION:DISPLAY
 DESCRIPTION:How was today?
