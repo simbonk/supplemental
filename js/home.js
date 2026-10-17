@@ -1,5 +1,5 @@
 import { state, nav } from './state.js';
-import { SCORE_COLORS, iso, todayISO, addDays, fmtDate, averageScore, streak, openIssues, openGoals, feelingEmoji, fmtAge } from './model.js';
+import { SCORE_COLORS, scoreClass, iso, todayISO, addDays, fmtDate, averageScore, streak, openIssues, openGoals, feelingEmoji, fmtAge } from './model.js';
 import { esc, openSheet } from './ui.js';
 import { openDay } from './day.js';
 
@@ -24,7 +24,7 @@ export function renderHome(view) {
     </header>
 
     <section class="stats">
-      <div class="stat"><div class="stat-num" ${avg30 ? `style="color:${SCORE_COLORS[Math.round(avg30)]}"` : ''}>${avg30 ? avg30.toFixed(1) : '–'}</div><div class="stat-label">30-day average</div></div>
+      <div class="stat"><div class="stat-num">${avg30 ? `<i class="stat-sw ${scoreClass(Math.round(avg30))}" style="background:${SCORE_COLORS[Math.round(avg30)]}"></i>` : ''}${avg30 ? avg30.toFixed(1) : '–'}</div><div class="stat-label">30-day average</div></div>
       <div class="stat"><div class="stat-num">${logged}</div><div class="stat-label">days logged</div></div>
       <div class="stat"><div class="stat-num">${st}</div><div class="stat-label">day streak</div></div>
     </section>
@@ -42,7 +42,7 @@ export function renderHome(view) {
       <div class="heat-grid"></div>
       <div class="legend">
         <span>Terrible</span>
-        <div class="legend-swatches">${SCORE_COLORS.slice(1).map((c, i) => `<i style="background:${c}" title="${i + 1}"></i>`).join('')}</div>
+        <div class="legend-swatches">${SCORE_COLORS.slice(1).map((c, i) => `<i class="${scoreClass(i + 1)}" style="background:${c}" title="${i + 1}"></i>`).join('')}</div>
         <span>Amazing</span>
       </div>
     </section>
@@ -96,7 +96,7 @@ function drawHeatmap(view) {
       if (date > today) cls.push('future');
       if (date === today) cls.push('today');
       if (entry) cls.push('filled');
-      if (entry && entry.score === 10) cls.push('hot');
+      if (entry && scoreClass(entry.score)) cls.push(scoreClass(entry.score));
       const style = entry ? `style="background:${SCORE_COLORS[entry.score]}"` : '';
       html += `<button class="${cls.join(' ')}" data-date="${date}" ${style} ${date > today ? 'disabled' : ''} aria-label="${date}${entry ? ', ' + entry.score + ' out of 10' : ''}"></button>`;
     }
@@ -118,7 +118,6 @@ function emptyDay(date) {
     <p class="muted">Nothing logged for this day.</p>
     <div class="stack gap-s mt">
       <button class="btn primary block" data-log>Log this day</button>
-      <button class="btn ghost block" data-close>Close</button>
     </div>`);
   s.el.querySelector('[data-log]').addEventListener('click', () => {
     s.close();

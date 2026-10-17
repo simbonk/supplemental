@@ -1,5 +1,5 @@
 import { state, nav, persist } from './state.js';
-import { SCORE_COLORS, SCORE_LABELS, todayISO, fmtDate, openIssues, openGoals, feelingEmoji, ISSUE_STATUSES, GOAL_STATUSES } from './model.js';
+import { SCORE_COLORS, SCORE_LABELS, scoreClass, todayISO, fmtDate, openIssues, openGoals, feelingEmoji, ISSUE_STATUSES, GOAL_STATUSES } from './model.js';
 import { esc, openSheet, confirmSheet, toast, haptic } from './ui.js';
 import { openEditor } from './items.js';
 
@@ -32,11 +32,11 @@ export function renderNewDay(view, dateArg) {
       <div class="field">
         <span class="field-label">How was today?</span>
         <div class="score-display">
-          <span class="score-num">–</span>
+          <span class="score-tile">–</span>
           <span class="score-word muted">Tap a square</span>
         </div>
         <div class="score-picker">
-          ${SCORE_COLORS.slice(1).map((c, i) => `<button type="button" class="score-sq" data-score="${i + 1}" style="--c:${c}" aria-label="${i + 1} ${SCORE_LABELS[i + 1]}">${i + 1}</button>`).join('')}
+          ${SCORE_COLORS.slice(1).map((c, i) => `<button type="button" class="score-sq ${scoreClass(i + 1)}" data-score="${i + 1}" style="--c:${c}" aria-label="${i + 1} ${SCORE_LABELS[i + 1]}">${i + 1}</button>`).join('')}
         </div>
         <div class="score-ends muted small"><span>Terrible</span><span>Amazing</span></div>
       </div>
@@ -69,8 +69,10 @@ export function renderNewDay(view, dateArg) {
   const form = view.querySelector('form');
   const paintScore = () => {
     form.querySelectorAll('.score-sq').forEach((b) => b.classList.toggle('on', Number(b.dataset.score) === draft.score));
-    form.querySelector('.score-num').textContent = draft.score || '–';
-    form.querySelector('.score-num').style.color = draft.score ? SCORE_COLORS[draft.score] : '';
+    const tile = form.querySelector('.score-tile');
+    tile.textContent = draft.score || '–';
+    tile.className = 'score-tile ' + (draft.score ? 'set ' + scoreClass(draft.score) : '');
+    tile.style.setProperty('--c', draft.score ? SCORE_COLORS[draft.score] : '');
     form.querySelector('.score-word').textContent = draft.score ? SCORE_LABELS[draft.score] : 'Tap a square';
   };
   const paintLists = () => {
@@ -169,7 +171,7 @@ export function openDay(date) {
         <button class="icon-btn" data-goto="${next || ''}" ${next ? '' : 'disabled'} aria-label="Next entry">›</button>
       </div>
       <div class="day-score" style="--c:${SCORE_COLORS[entry.score]}">
-        <div class="day-score-sq ${entry.score === 10 ? 'hot' : ''}">${entry.score}</div>
+        <div class="day-score-sq ${scoreClass(entry.score)}">${entry.score}</div>
         <div><div class="day-score-word">${esc(SCORE_LABELS[entry.score])}</div><div class="muted small">${entry.score} out of 10</div></div>
       </div>
       ${entry.note ? `<p class="day-note">${esc(entry.note).replace(/\n/g, '<br>')}</p>` : '<p class="muted">No notes.</p>'}
@@ -182,7 +184,6 @@ export function openDay(date) {
         <button class="btn block" data-edit>Edit</button>
         <button class="btn danger-ghost block" data-delete>Delete day</button>
       </div>
-      <button class="btn ghost block mt" data-close>Close</button>
     </div>`, { tall: true });
 
   s.el.querySelectorAll('[data-goto]').forEach((b) => b.addEventListener('click', () => {

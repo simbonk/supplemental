@@ -2,8 +2,12 @@
 
 export const SCORE_LABELS = ['', 'Terrible', 'Awful', 'Bad', 'Rough', 'Meh', 'Okay', 'Good', 'Great', 'Excellent', 'Amazing'];
 
-// Deep purple for the worst days, white-hot yellow for 10/10.
-export const SCORE_COLORS = ['', '#2e1065', '#4c1d95', '#6d28d9', '#8b3fc9', '#b4479f', '#d6517c', '#ee6a52', '#f98c2c', '#fdb41a', '#ffe34d'];
+// Black for the worst days, shimmering white gold for 10/10. The actual colors
+// come from the active theme (themes.js) as CSS variables --s1 … --s10.
+export const SCORE_COLORS = ['', ...Array.from({ length: 10 }, (_, i) => `var(--s${i + 1})`)];
+
+// Extra class for a score swatch: gold shimmer for 10, a faint ring for black on dark.
+export const scoreClass = (n) => (n === 10 ? 'gold ink-dark' : n === 1 ? 'black' : n >= 8 ? 'ink-dark' : '');
 
 export const FEELINGS = [
   ['Hurt', '💔'], ['Lonely', '🫥'], ['Sad', '😢'], ['Anxious', '😟'], ['Frustrated', '😤'],

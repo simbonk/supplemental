@@ -12,10 +12,8 @@ const KEYS = {
   vault: 'supplemental:vault',
   attempts: 'supplemental:attempts',
   lockout: 'supplemental:lockout',
+  demo: 'supplemental:demo',
 };
-
-export const DEMO_PIN = '000000';
-export const PIN_LENGTH = 6;
 
 function readJSON(key, fallback) {
   try {
@@ -220,6 +218,31 @@ export async function openBackup(record, pin) {
   const { session, data } = await openRecordWithPin(record, pin);
   wipeSession(session);
   return data;
+}
+
+// ---- Demo PIN ----
+// Opens sample data instead of the journal. It is always the same length as the
+// real PIN, so someone watching can't tell the two apart. Stored as a salted hash.
+
+async function demoHash(pin, salt) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salt + ':' + pin));
+  return toB64(buf);
+}
+
+export async function setDemoPin(pin) {
+  const salt = toB64(randomBytes(16));
+  writeJSON(KEYS.demo, { salt, hash: await demoHash(pin, salt), len: pin.length });
+}
+
+export async function isDemoPin(pin) {
+  const d = readJSON(KEYS.demo, null);
+  if (!d) return false;
+  return d.len === pin.length && (await demoHash(pin, d.salt)) === d.hash;
+}
+
+export function pinLength() {
+  const d = readJSON(KEYS.demo, null);
+  return d ? d.len : 0;
 }
 
 // ---- Login attempts and lockout (plain text: timestamps only, no journal content) ----

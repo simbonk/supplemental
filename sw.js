@@ -1,6 +1,6 @@
 // Offline support: serve the app shell from cache, refresh it in the background.
 // Bump VERSION when files change so old caches are cleared.
-const VERSION = 'supplemental-v1';
+const VERSION = 'supplemental-v2';
 const SHELL = [
   './',
   'index.html',
@@ -18,6 +18,7 @@ const SHELL = [
   'js/day.js',
   'js/items.js',
   'js/settings.js',
+  'js/themes.js',
   'icons/icon.svg',
   'icons/apple-touch-icon.png',
   'icons/icon-192.png',

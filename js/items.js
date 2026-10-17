@@ -233,7 +233,6 @@ export function openEditor(kind, id, { onDone } = {}) {
     <form class="editor" autocomplete="off">
       <div class="editor-head">
         <span class="muted small">${existing ? (isIssue ? 'Issue' : 'Goal') : (isIssue ? 'New issue' : 'New goal')}</span>
-        <button type="button" class="link-btn strong" data-close>Done</button>
       </div>
       <textarea name="title" class="title-input" rows="2" placeholder="${isIssue ? 'What\'s the issue?' : 'What would you like to do?'}">${esc(it.title)}</textarea>
 

@@ -1,4 +1,4 @@
-// A month of made-up sample data so people can poke around before setting a PIN.
+// A year of made-up sample data so people can poke around before setting a PIN.
 
 import { addDays, todayISO, emptyData, uid } from './model.js';
 
@@ -16,6 +16,8 @@ const NOTES = {
     'Felt invisible at dinner. Everyone on their phones, me included.',
     'Work deadline slipped again. Snapped at the kids and felt awful afterwards.',
     'Bad sleep, short fuse. Not my best self today.',
+    'Said things I regret. Slept on the couch.',
+    'Felt completely alone in a full house.',
   ],
   mid: [
     'Ordinary day. Got through the to-do list, quiet evening.',
@@ -30,13 +32,14 @@ const NOTES = {
     'Shipped the project. Team took me out for lunch.',
     'Date night! Tried the new Thai place and laughed a lot.',
     'Went through old photos of Grandpa. So many of him right in the middle of everyone.',
+    'Whole family at the beach. Nobody wanted to leave.',
+    'She left a note in my bag. Made my whole week.',
   ],
 };
 
 const THANKFUL = [
   'Morning coffee on the porch', 'A hug I didn\'t expect', 'My brother checking in', 'Good health',
-  'The kids\' laughter at dinner', 'A warm bed', 'Grandpa\'s old watch', 'Sunshine on the walk home', '',
-  '', '',
+  'The kids\' laughter at dinner', 'A warm bed', 'Grandpa\'s old watch', 'Sunshine on the walk home',
 ];
 
 export function makeDemoData() {
@@ -48,7 +51,7 @@ export function makeDemoData() {
   data.issues = [
     {
       id: uid(), title: 'We feel like roommates, not partners', area: 'Marriage', status: 'working',
-      startedAt: addDays(today, -120), feeling: 'Lonely', intensity: 8, kind: 'solvable', talked: 'tried',
+      startedAt: addDays(today, -230), feeling: 'Lonely', intensity: 8, kind: 'solvable', talked: 'tried',
       notes: {
         facts: 'Most evenings we\'re in separate rooms after the kids go down.',
         need: 'To feel wanted and chosen.',
@@ -60,36 +63,36 @@ export function makeDemoData() {
     },
     {
       id: uid(), title: 'Arguments about chores and the mental load', area: 'Marriage', status: 'noticed',
-      startedAt: addDays(today, -75), feeling: 'Frustrated', intensity: 6, kind: 'perpetual', talked: 'not-yet',
+      startedAt: addDays(today, -160), feeling: 'Frustrated', intensity: 6, kind: 'perpetual', talked: 'not-yet',
       notes: { facts: 'Dishes, laundry and school forms. The same fight every few days.', need: 'To feel like a team.' },
       createdAt: Date.now(),
     },
     {
       id: uid(), title: 'Work stress spilling into home', area: 'Work', status: 'working',
-      startedAt: addDays(today, -40), feeling: 'Overwhelmed', intensity: 7, kind: 'solvable', talked: 'talking',
+      startedAt: addDays(today, -95), feeling: 'Overwhelmed', intensity: 7, kind: 'solvable', talked: 'talking',
       notes: { nextStep: 'Laptop closed by 7pm, three nights this week.' }, createdAt: Date.now(),
     },
     {
       id: uid(), title: 'Not sleeping enough', area: 'Health', status: 'noticed',
-      startedAt: addDays(today, -21), feeling: 'Anxious', intensity: 5, kind: 'unsure', talked: 'not-yet',
+      startedAt: addDays(today, -40), feeling: 'Anxious', intensity: 5, kind: 'unsure', talked: 'not-yet',
       notes: {}, createdAt: Date.now(),
     },
     {
       id: uid(), title: 'Haven\'t called Dad in months', area: 'Family', status: 'resolved',
-      startedAt: addDays(today, -90), feeling: 'Guilty', intensity: 4, kind: 'solvable', talked: 'talking',
-      notes: {}, createdAt: Date.now(), doneAt: addDays(today, -12),
+      startedAt: addDays(today, -300), feeling: 'Guilty', intensity: 4, kind: 'solvable', talked: 'talking',
+      notes: {}, createdAt: Date.now(), doneAt: addDays(today, -45),
     },
   ];
 
   data.goals = [
     {
       id: uid(), title: 'Plan a weekend away, just the two of us', area: 'Marriage', status: 'doing',
-      addedAt: addDays(today, -18), targetDate: addDays(today, 40),
+      addedAt: addDays(today, -60), targetDate: addDays(today, 40),
       notes: { what: 'Book somewhere two hours away, line up the grandparents.', why: 'We used to be best friends. I want that back.', firstStep: 'Ask her which weekend.' },
     },
     {
       id: uid(), title: 'Make a photo book of Grandpa', area: 'Family', status: 'planned',
-      addedAt: addDays(today, -9),
+      addedAt: addDays(today, -120),
       notes: { what: 'Scan the old albums and make a book for the family.', why: 'He was the oak at the centre of the family. The kids should know him.', withWho: 'Aunties and cousins.' },
     },
     {
@@ -97,29 +100,48 @@ export function makeDemoData() {
       notes: { firstStep: 'Three easy runs this week.' },
     },
     {
-      id: uid(), title: 'Teach the kids to ride bikes', area: 'Kids', status: 'done', addedAt: addDays(today, -28),
-      doneAt: addDays(today, -4), notes: {},
+      id: uid(), title: 'Teach the kids to ride bikes', area: 'Kids', status: 'done', addedAt: addDays(today, -210),
+      doneAt: addDays(today, -150), notes: {},
+    },
+    {
+      id: uid(), title: 'Family trip to the coast', area: 'Family', status: 'done', addedAt: addDays(today, -160),
+      doneAt: addDays(today, -70), notes: { why: 'Everyone together, no screens.' },
     },
   ];
 
-  for (let i = 29; i >= 0; i--) {
+  // A year of days. Most get just a score; the black and gold days get the story.
+  const goalDays = new Map(data.goals.filter((g) => g.doneAt).map((g) => [g.doneAt, g]));
+  const fixDays = new Map(data.issues.filter((x) => x.doneAt).map((x) => [x.doneAt, x]));
+  for (let i = 364; i >= 0; i--) {
     const date = addDays(today, -i);
-    if (i > 0 && rand() < 0.1) continue; // a few skipped days look realistic
-    const wave = Math.sin((30 - i) / 4.5) * 1.8;
-    let score = Math.round(5.6 + wave + (rand() - 0.5) * 4);
+    const goal = goalDays.get(date);
+    const fixed = fixDays.get(date);
+    if (i > 0 && !goal && !fixed && rand() < 0.07) continue;
+    const season = Math.sin(((365 - i) / 365) * Math.PI * 4) * 1.1;
+    const roughPatch = i < 260 && i > 190 ? -1.4 : 0;
+    let score = Math.round(6 + season + roughPatch + (rand() - 0.5) * 3.6);
+    const r = rand();
+    if (r < 0.03) score = rand() < 0.5 ? 1 : 2;
+    else if (r > 0.985) score = 10;
+    if (goal || fixed) score = 10;
     score = Math.max(1, Math.min(10, score));
-    const pool = score <= 3 ? NOTES.low : score >= 8 ? NOTES.high : NOTES.mid;
+    let note = '';
+    if (goal) note = `Goal achieved: ${goal.title}. ${NOTES.high[Math.floor(rand() * NOTES.high.length)]}`;
+    else if (fixed) note = 'Called Dad after months of putting it off. We talked for an hour and he sounded so happy.';
+    else if (score <= 2) note = NOTES.low[Math.floor(rand() * NOTES.low.length)];
+    else if (score === 10) note = NOTES.high[Math.floor(rand() * NOTES.high.length)];
+    else if (rand() < 0.12) note = NOTES.mid[Math.floor(rand() * NOTES.mid.length)];
     const issuesThen = data.issues.filter((x) => x.startedAt <= date && (!x.doneAt || x.doneAt > date));
-    const goalsThen = data.goals.filter((g) => g.addedAt <= date && (!g.doneAt || g.doneAt > date));
+    const goalsThen = data.goals.filter((g) => g.addedAt <= date && (!g.doneAt || g.doneAt >= date));
     data.days[date] = {
       date,
       score,
-      note: pool[Math.floor(rand() * pool.length)],
-      thankful: THANKFUL[Math.floor(rand() * THANKFUL.length)],
+      note,
+      thankful: rand() < 0.3 ? THANKFUL[Math.floor(rand() * THANKFUL.length)] : '',
       issues: issuesThen.map((x, idx) => ({
         id: x.id, title: x.title, rank: idx + 1, total: issuesThen.length, feeling: x.feeling, intensity: x.intensity, status: x.status,
       })),
-      goals: goalsThen.map((g, idx) => ({ id: g.id, title: g.title, rank: idx + 1, status: g.status })),
+      goals: goalsThen.map((g, idx) => ({ id: g.id, title: g.title, rank: idx + 1, status: g.doneAt === date ? 'done' : g.status === 'done' ? 'doing' : g.status })),
       updatedAt: Date.now(),
     };
   }

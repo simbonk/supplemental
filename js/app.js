@@ -7,6 +7,7 @@ import { renderHome } from './home.js';
 import { renderNewDay } from './day.js';
 import { renderItems } from './items.js';
 import { renderSettings } from './settings.js';
+import { applyTheme } from './themes.js';
 
 const app = $('#app');
 
@@ -19,8 +20,8 @@ const TABS = [
 ];
 
 const ICON_SVG = `<svg viewBox="0 0 64 64" class="logo" aria-hidden="true">${[0, 1, 2, 3].map((r) => [0, 1, 2, 3].map((c) => {
-  const colors = ['#4c1d95', '#6d28d9', '#b4479f', '#ee6a52', '#f98c2c', '#fdb41a', '#ffe34d'];
-  return `<rect x="${4 + c * 15}" y="${4 + r * 15}" width="12" height="12" rx="3.5" fill="${colors[r + c]}"/>`;
+  const n = r + c === 6 ? 10 : r + c + 3;
+  return `<rect x="${4 + c * 15}" y="${4 + r * 15}" width="12" height="12" rx="3.5" style="fill:var(--s${n})"/>`;
 }).join('')).join('')}</svg>`;
 
 // ---------- Lock screen ----------
@@ -36,14 +37,15 @@ function showLock(message = '') {
         <h1>Supplemental</h1>
         <p class="muted lock-msg">${esc(message || 'Enter your PIN')}</p>
       </div>
-      <div class="pin-pad">
-        ${keypadHTML(vault.PIN_LENGTH, { extraKey: bio ? '<button class="key key-icon faceid" data-faceid aria-label="Unlock with Face ID">' + faceIdIcon() + '</button>' : '' })}
+      <div class="pin-pad">${keypadHTML()}</div>
+      <div class="lock-links">
+        ${bio ? `<button class="link-btn faceid" data-faceid>${faceIdIcon()} Use Face ID</button>` : ''}
+        <button class="link-btn muted-link" data-forgot>Forgot PIN?</button>
       </div>
-      <button class="link-btn" data-forgot>Forgot PIN?</button>
     </div>`;
   const msg = $('.lock-msg', app);
-  const pad = bindKeypad($('.pin-pad', app), vault.PIN_LENGTH, async (pin, api) => {
-    if (pin === vault.DEMO_PIN) {
+  const pad = bindKeypad($('.pin-pad', app), async (pin, api) => {
+    if (await vault.isDemoPin(pin)) {
       vault.logAttempt(true, 'Demo PIN');
       return enterDemo();
     }
@@ -57,6 +59,7 @@ function showLock(message = '') {
     try {
       const { session, data } = await vault.unlockWithPin(pin);
       vault.logAttempt(true, 'PIN');
+      if (!vault.pinLength()) await vault.setDemoPin('0'.repeat(pin.length));
       enterReal(session, data);
     } catch (e) {
       api.setBusy(false);
@@ -145,34 +148,36 @@ export function lock() {
 export async function startSetup() {
   const pin = await askNewPin();
   if (!pin) return;
+  const zeros = '0'.repeat(pin.length);
   const ok = await confirmSheet({
     title: 'Start your journal?',
-    body: 'The demo data will be cleared and your journal will be encrypted with this PIN. There is no way to recover it if you forget the PIN, so pick one you will remember.',
+    body: `The demo data will be cleared and your journal will be encrypted with this PIN. There is no way to recover it if you forget the PIN. Your demo PIN is now ${zeros}; you can change it in Settings.`,
     confirm: 'Start my journal',
   });
   if (!ok) return;
   toast('Encrypting…');
   const data = emptyData();
   const session = await vault.createVault(pin, data);
+  await vault.setDemoPin(zeros);
   vault.logAttempt(true, 'PIN set');
   enterReal(session, data);
   location.hash = '#home';
   toast('Your journal is ready');
 }
 
+function tooEasy(pin) {
+  return /^(\d)\1+$/.test(pin) || '01234567890'.includes(pin) || '98765432109'.includes(pin);
+}
+
 // Ask for a new PIN twice. Returns the PIN or null.
-export async function askNewPin(title = 'Choose a 6-digit PIN') {
-  const first = await askPin(title, 'Use something different from your iPhone passcode.');
+export async function askNewPin(title = 'Choose a PIN') {
+  const first = await askPin(title, '4 to 8 digits, then tap ✓. Longer is safer. Use something different from your iPhone passcode.');
   if (!first) return null;
-  if (first === vault.DEMO_PIN) {
-    toast('000000 is the demo PIN. Pick another.');
-    return null;
-  }
-  if (/^(\d)\1+$/.test(first) || '0123456789'.includes(first) || '9876543210'.includes(first)) {
+  if (tooEasy(first)) {
     toast('Too easy to guess. Pick another.');
     return null;
   }
-  const second = await askPin('Enter it again');
+  const second = await askPin('Enter it again', '', { exact: first.length });
   if (second !== first) {
     if (second) toast("PINs didn't match");
     return null;
@@ -246,6 +251,7 @@ window.addEventListener('focus', () => document.body.classList.remove('privacy')
 // ---------- Boot ----------
 
 function boot() {
+  applyTheme();
   state.hasVault = vault.hasVault();
   if (state.hasVault) showLock();
   else enterDemo();

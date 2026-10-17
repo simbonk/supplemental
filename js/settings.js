@@ -2,6 +2,7 @@ import * as vault from './vault.js';
 import { state, nav, persist } from './state.js';
 import { todayISO, fmtDate } from './model.js';
 import { esc, toast, confirmSheet, askPin } from './ui.js';
+import { THEMES, APPEARANCES, currentTheme, currentAppearance, setTheme, setAppearance, scaleFor, isDark } from './themes.js';
 
 let showAllAttempts = false;
 
@@ -19,7 +20,7 @@ export function renderSettings(view) {
     ${!real ? `<section class="card callout">
       ${state.hasVault
         ? `<p>You're looking at demo data. Nothing here is saved. Lock to go back to your own journal.</p><button class="btn primary block" data-lock>Lock</button>`
-        : `<p><strong>Ready to start?</strong> Setting a 6-digit PIN clears the demo data and starts your own encrypted journal on this device.</p><button class="btn primary block" data-setup>Set your PIN</button>`}
+        : `<p><strong>Ready to start?</strong> Setting a PIN (4 to 8 digits) clears the demo data and starts your own encrypted journal on this device.</p><button class="btn primary block" data-setup>Set your PIN</button>`}
     </section>` : ''}
 
     ${real ? `<h3 class="section-label">Security</h3>
@@ -54,9 +55,23 @@ export function renderSettings(view) {
     </section>
     ${real ? '' : '<p class="hint left">Set your PIN first to export or import.</p>'}
 
+    <h3 class="section-label">Appearance</h3>
+    <section class="card">
+      <div class="segmented wide" data-appearance>${APPEARANCES.map(([v, l]) => `<button data-v="${v}" class="${currentAppearance() === v ? 'on' : ''}">${l}</button>`).join('')}</div>
+      <div class="theme-grid">${Object.entries(THEMES).map(([id, t]) => `
+        <button class="theme-opt ${currentTheme() === id ? 'on' : ''}" data-theme="${id}">
+          <span class="theme-opt-head">${esc(t.name)}${currentTheme() === id ? '<span class="theme-check">✓</span>' : ''}</span>
+          <span class="theme-strip">${scaleFor(id, isDark()).map((c, i) => `<i class="${i === 9 ? 'gold' : i === 0 ? 'black' : ''}" style="background:${c}"></i>`).join('')}</span>
+          <span class="muted small">${esc(t.blurb)}</span>
+        </button>`).join('')}</div>
+    </section>
+
     <h3 class="section-label">Demo</h3>
     <section class="card">
-      <p class="small">Enter the demo PIN <strong class="mono">000000</strong> on the lock screen to explore a month of sample data. Nothing done in the demo is saved, and your real journal stays locked.</p>
+      ${real
+        ? `<p class="small">Enter your demo PIN on the lock screen to open a year of sample data instead of your journal. It's always the same length as your real PIN (${vault.pinLength()} digits), so nobody watching can tell which one you typed. Nothing done in the demo is saved.</p>
+           <button class="btn block" data-demo-pin>Change demo PIN</button>`
+        : `<p class="small">This is a year of sample data. When you set your PIN, the demo PIN starts as all zeros of the same length (for example 0000 for a 4-digit PIN), and you can change it here.</p>`}
     </section>
 
     <h3 class="section-label">Help</h3>
@@ -77,7 +92,7 @@ export function renderSettings(view) {
         <div class="prose small">
           <p>Everything stays on this phone. There is no server and no account; this page is just the app's code.</p>
           <p>Your entries are encrypted with AES-256-GCM. The key comes from your PIN through Argon2id, a deliberately slow, memory-hungry function, so copied files are useless without the PIN, and each guess is expensive.</p>
-          <p>A 6-digit PIN has a million combinations. That stops someone poking at the phone, and the lock screen slows down after 5 wrong tries. A determined attacker who copies the files and has serious computing power could still try every PIN over time, so don't treat this as a vault for anything you couldn't bear to have read.</p>
+          <p>A 4-digit PIN has 10,000 combinations and an 8-digit one has 100 million, so longer really is safer. A PIN stops someone poking at the phone, and the lock screen slows down after 5 wrong tries. A determined attacker who copies the files and has serious computing power could still try every PIN over time, so don't treat this as a vault for anything you couldn't bear to have read.</p>
           <p>Face ID is optional and off by default. When it's on, a passkey protected by Face ID can unlock the journal. If Face ID fails, iPhone can fall back to the phone passcode, so anyone who knows your phone passcode could get in that way. Leave it off if that matters to you.</p>
           <p>Backups are encrypted the same way. Export now and then: if the app is deleted, its data goes with it.</p>
         </div>
@@ -105,6 +120,15 @@ export function renderSettings(view) {
   on('[data-change-pin]', changePin);
   on('[data-export]', exportJournal);
   on('[data-erase]', erase);
+  on('[data-demo-pin]', changeDemoPin);
+  on('[data-theme]', (e) => { setTheme(e.currentTarget.dataset.theme); renderSettings(view); });
+  const ap = view.querySelector('[data-appearance]');
+  if (ap) ap.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-v]');
+    if (!b) return;
+    setAppearance(b.dataset.v);
+    renderSettings(view);
+  });
   const bio = view.querySelector('[data-bio]');
   if (bio) bio.addEventListener('change', () => toggleBio(bio, view));
   const imp = view.querySelector('[data-import]');
@@ -115,6 +139,18 @@ function shareIcon() {
   return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>';
 }
 
+async function changeDemoPin() {
+  const len = vault.pinLength();
+  const pin = await askPin('New demo PIN', `${len} digits, the same length as your real PIN.`, { exact: len });
+  if (!pin) return;
+  if (await vault.verifyPin(pin)) {
+    toast("That's your real PIN. Pick a different one.");
+    return;
+  }
+  await vault.setDemoPin(pin);
+  toast('Demo PIN changed');
+}
+
 async function changePin() {
   const current = await askPin('Enter your current PIN');
   if (!current) return;
@@ -123,11 +159,17 @@ async function changePin() {
     toast('That PIN is not right');
     return;
   }
-  const next = await nav.askNewPin('Choose a new 6-digit PIN');
+  const next = await nav.askNewPin('Choose a new PIN');
   if (!next) return;
   await vault.changePin(state.session, next);
   vault.logAttempt(true, 'PIN changed');
-  toast('PIN changed');
+  if (vault.pinLength() !== next.length || (await vault.isDemoPin(next))) {
+    const zeros = '0'.repeat(next.length);
+    await vault.setDemoPin(zeros);
+    toast(`PIN changed. Demo PIN is now ${zeros}`);
+  } else {
+    toast('PIN changed');
+  }
   nav.refresh();
 }
 

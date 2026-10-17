@@ -1,6 +1,5 @@
 // Small UI toolkit: escaping, sheets, toasts, confirm, keypad, drag-to-reorder, confetti.
 
-import { SCORE_COLORS } from './model.js';
 
 export const $ = (sel, root = document) => root.querySelector(sel);
 export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -23,6 +22,9 @@ export function openSheet(html, { onClose, tall = false } = {}) {
   wrap.innerHTML = `<div class="sheet-backdrop"></div>
     <div class="sheet ${tall ? 'tall' : ''}" role="dialog" aria-modal="true">
       <div class="sheet-grabber"></div>
+      <button type="button" class="sheet-x" data-close aria-label="Close">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
       <div class="sheet-body">${html}</div>
     </div>`;
   document.body.appendChild(wrap);
@@ -85,75 +87,88 @@ export function confirmSheet({ title, body = '', confirm = 'Confirm', danger = f
   });
 }
 
-// ---- PIN keypad ----
+// ---- PIN keypad (4 to 8 digits) ----
 
-export function keypadHTML(length, { extraKey = '' } = {}) {
-  const dots = Array.from({ length }, () => '<span class="pin-dot"></span>').join('');
-  const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((k) => `<button class="key" data-key="${k}">${k}</button>`).join('');
-  return `<div class="pin-dots">${dots}</div>
+export const PIN_MIN = 4;
+export const PIN_MAX = 8;
+
+export function keypadHTML() {
+  const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((k) => `<button type="button" class="key" data-key="${k}">${k}</button>`).join('');
+  return `<div class="pin-dots"></div>
     <div class="keypad">${keys}
-      <div class="key-slot">${extraKey}</div>
-      <button class="key" data-key="0">0</button>
-      <button class="key key-icon" data-del aria-label="Delete">⌫</button>
+      <button type="button" class="key key-icon" data-del aria-label="Delete">⌫</button>
+      <button type="button" class="key" data-key="0">0</button>
+      <button type="button" class="key key-ok" data-ok aria-label="Enter">✓</button>
     </div>`;
 }
 
-// Wires a keypad; calls onComplete(pin) when `length` digits are entered.
-export function bindKeypad(root, length, onComplete) {
+// Wires a keypad. With `exact`, submits as soon as that many digits are typed;
+// otherwise the ✓ key submits once there are at least PIN_MIN digits.
+export function bindKeypad(root, onComplete, { exact = 0 } = {}) {
   let pin = '';
   let busy = false;
-  const dots = $$('.pin-dot', root);
-  const render = () => dots.forEach((d, i) => d.classList.toggle('on', i < pin.length));
+  const dotsEl = $('.pin-dots', root);
+  const okBtn = $('[data-ok]', root);
+  const max = exact || PIN_MAX;
+  const render = () => {
+    const slots = exact || Math.max(PIN_MIN, pin.length);
+    dotsEl.innerHTML = Array.from({ length: slots }, (_, i) => `<span class="pin-dot ${i < pin.length ? 'on' : ''}"></span>`).join('');
+    okBtn.classList.toggle('ready', pin.length >= (exact || PIN_MIN));
+  };
   const api = {
-    reset() { pin = ''; busy = false; render(); },
+    reset() { pin = ''; busy = false; root.classList.remove('busy'); render(); },
     shake() {
-      const el = $('.pin-dots', root);
-      el.classList.remove('shake');
-      void el.offsetWidth;
-      el.classList.add('shake');
+      dotsEl.classList.remove('shake');
+      void dotsEl.offsetWidth;
+      dotsEl.classList.add('shake');
       setTimeout(() => api.reset(), 450);
     },
     setBusy(b) { busy = b; root.classList.toggle('busy', b); },
   };
+  const submit = () => {
+    if (busy || pin.length < (exact || PIN_MIN)) return;
+    const value = pin;
+    busy = true;
+    setTimeout(() => { busy = false; onComplete(value, api); }, 120);
+  };
   const press = (k) => {
     if (busy) return;
     if (k === 'del') pin = pin.slice(0, -1);
-    else if (pin.length < length) pin += k;
+    else if (pin.length < max) pin += k;
     haptic();
     render();
-    if (pin.length === length) {
-      const value = pin;
-      setTimeout(() => onComplete(value, api), 120);
-    }
+    if (exact && pin.length === exact) submit();
   };
   root.addEventListener('click', (e) => {
     const k = e.target.closest('[data-key]');
     if (k) return press(k.dataset.key);
-    if (e.target.closest('[data-del]')) press('del');
+    if (e.target.closest('[data-del]')) return press('del');
+    if (e.target.closest('[data-ok]')) submit();
   });
   const onKey = (e) => {
     if (!root.isConnected) return document.removeEventListener('keydown', onKey);
     if (/^\d$/.test(e.key)) press(e.key);
     else if (e.key === 'Backspace') press('del');
+    else if (e.key === 'Enter') submit();
   };
   document.addEventListener('keydown', onKey);
+  render();
   return api;
 }
 
 // Opens a sheet asking for a PIN. Resolves with the PIN or null.
-export function askPin(title, subtitle = '') {
+export function askPin(title, subtitle = '', { exact = 0 } = {}) {
   return new Promise((resolve) => {
     let done = false;
     const s = openSheet(`
       <h2 class="sheet-title center">${esc(title)}</h2>
-      ${subtitle ? `<p class="muted center">${esc(subtitle)}</p>` : ''}
-      <div class="pin-pad">${keypadHTML(6)}</div>
-      <button class="btn ghost block" data-close>Cancel</button>`, { onClose: () => !done && resolve(null) });
-    bindKeypad(s.el, 6, (pin) => {
+      ${subtitle ? `<p class="muted center small">${esc(subtitle)}</p>` : ''}
+      <div class="pin-pad">${keypadHTML()}</div>`, { onClose: () => !done && resolve(null) });
+    bindKeypad(s.el, (pin) => {
       done = true;
       s.close();
       resolve(pin);
-    });
+    }, { exact });
   });
 }
 
@@ -231,7 +246,8 @@ export function celebrate(text = 'Done!') {
 
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
-  const colors = SCORE_COLORS.slice(4);
+  const css = getComputedStyle(document.documentElement);
+  const colors = [5, 6, 7, 8, 9, 10, 10].map((n) => css.getPropertyValue('--s' + n).trim() || '#f2d683');
   const parts = Array.from({ length: 140 }, () => ({
     x: innerWidth / 2,
     y: innerHeight * 0.45,
