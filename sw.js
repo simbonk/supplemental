@@ -1,6 +1,6 @@
-// Offline support: serve the app shell from cache, refresh it in the background.
+// Offline support: always try the network, fall back to the cached app shell.
 // Bump VERSION when files change so old caches are cleared.
-const VERSION = 'supplemental-v4';
+const VERSION = 'supplemental-v5';
 const SHELL = [
   './',
   'index.html',
@@ -37,19 +37,19 @@ self.addEventListener('activate', (e) => {
   );
 });
 
+// Network first, so a new version shows up on the next launch; the cache is the offline fallback.
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
   e.respondWith(
-    caches.open(VERSION).then(async (cache) => {
-      const cached = await cache.match(req, { ignoreSearch: true });
-      const network = fetch(req)
-        .then((res) => {
-          if (res.ok) cache.put(req, res.clone());
-          return res;
-        })
-        .catch(() => cached);
-      return cached || network;
-    }),
+    fetch(req)
+      .then((res) => {
+        if (res.ok) {
+          const copy = res.clone();
+          caches.open(VERSION).then((c) => c.put(req, copy));
+        }
+        return res;
+      })
+      .catch(() => caches.match(req, { ignoreSearch: true })),
   );
 });
