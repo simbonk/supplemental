@@ -143,8 +143,9 @@ body.privacy::after {
   border-top: 1px solid var(--line);
 }
 .tab { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10.5px; font-weight: 500; color: var(--muted); padding: 4px 0; }
-.tab svg { width: 24px; height: 24px; }
-.tab.active { color: var(--accent); }
+.tab svg { width: 24px; height: 24px; padding: 3px 16px; box-sizing: content-box; border-radius: 999px; transition: background .2s; }
+.tab.active { color: var(--accent); font-weight: 700; }
+.tab.active svg { background: color-mix(in srgb, var(--accent) 22%, transparent); stroke-width: 2.4; }
 .tab-new { justify-self: center; }
 .tab-new .plus {
   width: 50px; height: 50px; border-radius: 16px; display: grid; place-items: center;
