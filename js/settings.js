@@ -164,8 +164,31 @@ export function renderSettings(view) {
         </div>
       </details>
       <details class="collapse">
-        <summary>Why "Supplemental"?</summary>
-        <div class="prose small"><p>Every captain's log needs a supplemental entry. This is the one that's just for you.</p></div>
+        <summary>Why "Supplemental", and why it works this way</summary>
+        <div class="prose small">
+          <p>Every captain's log has the official entry, and then the supplemental one: the note added afterward, when there's time to say what really happened. This is that log, just for you.</p>
+          <p>It's also a supplement, not a substitute. It won't have the hard conversation for you, but it helps you walk into one clear-headed, with specifics instead of a vague bad mood.</p>
+          <p><strong>Why each piece is there</strong></p>
+          <ul>
+            <li><strong>One number a day.</strong> Memory is unreliable: one bad week can color how a whole year feels, and slow slides go unnoticed. A daily score takes five seconds, and after a few months the heat map shows the real pattern, good stretches included.</li>
+            <li><strong>One line about the day.</strong> Putting a feeling into words tends to take some of the heat out of it. A sentence is enough, and later it reminds you what was behind the number.</li>
+            <li><strong>Issues ranked like bugs.</strong> You can't fix everything at once, and trying to usually means fixing nothing. Ranking makes you choose what matters most right now. The age shows what has been quietly sitting there for months.</li>
+            <li><strong>Feeling and intensity.</strong> "Annoyed, 3/10" and "Hurt, 8/10" need very different conversations. Naming both helps you pick the right moment and the right words.</li>
+            <li><strong>Solvable or ongoing.</strong> Relationship research suggests most recurring disagreements are about lasting differences in personality or needs, not problems with a fix. Those go better when you understand each other than when you try to win. Marking which kind an issue is changes how you approach it.</li>
+            <li><strong>"Have we talked about it?"</strong> An issue you haven't raised yet is easy to resent and impossible to resolve. This keeps you honest about which ones are still only in your head.</li>
+            <li><strong>Goals and the board.</strong> So it's not only about what's wrong. Things you're building toward deserve the same attention, and moving a card along is a small, real win.</li>
+            <li><strong>The weekly review.</strong> Small, regular check-ins keep problems small. A few minutes a week beats a blowup every few months.</li>
+            <li><strong>Private by design.</strong> You can only be honest in a journal nobody else will read. That's why there's a PIN, a demo PIN for curious eyes, and nothing ever leaves this phone.</li>
+          </ul>
+          <p><strong>Getting the most from it</strong></p>
+          <ul>
+            <li>Log every day, even the boring ones. The 6s and 7s are what make the 2s and 9s mean something.</li>
+            <li>Keep the issues list short and honest. Five real issues are better than twenty half-ones.</li>
+            <li>Before a hard talk, look at the issue's age, feeling and notes. Start with how it has felt, not what they did.</li>
+            <li>Mark things resolved when they are. Looking back at what you've gotten through is part of the point.</li>
+            <li>If you're working with a counselor, a few weeks of entries make a great starting point for a session.</li>
+          </ul>
+        </div>
       </details>
     </section>
 
