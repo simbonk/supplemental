@@ -11,7 +11,12 @@ import {
 import { esc, openSheet, haptic, celebrate } from './ui.js';
 import { openEditor } from './items.js';
 
-const TRENDS = [['worse', 'Worse'], ['same', 'Same'], ['better', 'Better']];
+// Issues ask which way things moved; goals ask how much progress was made.
+const CHECKINS = {
+  issues: { label: "This week it's", options: [['worse', 'Worse'], ['same', 'Same'], ['better', 'Better']], cheer: { better: 'Progress!' } },
+  goals: { label: 'Progress', options: [['none', 'Not yet'], ['some', 'Some'], ['big', 'Big step']], cheer: { some: 'Nice!', big: 'Big step!' } },
+};
+const CHECKIN_WORDS = { none: 'no progress', some: 'some progress', big: 'a big step' };
 
 // Monday of this week, as YYYY-MM-DD.
 export function weekId(date = todayISO()) {
@@ -53,9 +58,10 @@ function promptProgress(item, prompts) {
 
 function trendChips(kind, item) {
   const now = checkin(item);
+  const { label, options } = CHECKINS[kind];
   return `<div class="trend" data-kind="${kind}" data-id="${item.id}">
-    <span class="muted small">This week it's</span>
-    ${TRENDS.map(([v, l]) => `<button type="button" class="trend-btn t-${v} ${now?.trend === v ? 'on' : ''}" data-trend="${v}">${l}</button>`).join('')}
+    <span class="muted small">${label}</span>
+    ${options.map(([v, l]) => `<button type="button" class="trend-btn t-${v} ${now?.trend === v ? 'on' : ''}" data-trend="${v}">${l}</button>`).join('')}
   </div>`;
 }
 
@@ -98,12 +104,13 @@ export function weeklyHTML(data, { banner = true } = {}) {
 
   const goalBlock = goal ? (() => {
     const prog = promptProgress(goal, GOAL_PROMPTS);
+    const lastG = lastCheckin(goal);
     const daysLeft = goal.targetDate ? Math.round((parseISO(goal.targetDate) - parseISO(today)) / 86400000) : null;
     return `<div class="wk-item goal">
       <div class="wk-item-head">
         <span class="wk-rank goal">★</span>
         <div class="wk-item-title">${esc(goal.title)}
-          <div class="muted small">${daysLeft !== null ? (daysLeft >= 0 ? `${daysLeft} days to go` : `${-daysLeft} days past the target`) : `added ${esc(fmtAge(goal.addedAt))} ago`}${goal.notes?.firstStep ? ` · next step: ${esc(goal.notes.firstStep)}` : ''}</div>
+          <div class="muted small">${daysLeft !== null ? (daysLeft >= 0 ? `${daysLeft} days to go` : `${-daysLeft} days past the target`) : `added ${esc(fmtAge(goal.addedAt))} ago`}${goal.notes?.firstStep ? ` · next step: ${esc(goal.notes.firstStep)}` : ''}${lastG ? ` · last week: ${CHECKIN_WORDS[lastG.trend] || lastG.trend}` : ''}</div>
         </div>
       </div>
       ${trendChips('goals', goal)}
@@ -142,9 +149,10 @@ export function bindWeekly(root, refresh) {
       item.checkins = (item.checkins || []).filter((c) => c.week !== weekId());
       item.checkins.push({ week: weekId(), trend: trendBtn.dataset.trend });
       box.querySelectorAll('[data-trend]').forEach((b) => b.classList.toggle('on', b === trendBtn));
-      if (trendBtn.dataset.trend === 'better') {
+      const cheer = CHECKINS[box.dataset.kind].cheer[trendBtn.dataset.trend];
+      if (cheer) {
         const r = trendBtn.getBoundingClientRect();
-        celebrate('Progress!', { x: r.left + r.width / 2, y: r.top, small: true });
+        celebrate(cheer, { x: r.left + r.width / 2, y: r.top, small: true });
       } else haptic();
       await persist();
       return;

@@ -526,6 +526,9 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .trend-btn.on.t-better { background: var(--success); border-color: var(--success); color: #fff; }
 .trend-btn.on.t-same { background: #7c9cbf; border-color: #7c9cbf; color: #fff; }
 .trend-btn.on.t-worse { background: var(--danger); border-color: var(--danger); color: #fff; }
+.trend-btn.on.t-none { background: #7c9cbf; border-color: #7c9cbf; color: #fff; }
+.trend-btn.on.t-some { background: color-mix(in srgb, var(--success) 70%, #fff); border-color: transparent; color: #fff; }
+.trend-btn.on.t-big { background: var(--success); border-color: var(--success); color: #fff; }
 .wk-reflect { width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; text-align: left;
   border: 0; background: transparent; padding: 4px 0 0; font-size: 13.5px; line-height: 1.35; }
 .wk-reflect .wk-meter { grid-column: 1 / -1; height: 4px; border-radius: 3px; background: var(--line); overflow: hidden; }
