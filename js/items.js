@@ -114,8 +114,7 @@ function cardHTML(kind, it, { rank, draggable, board }) {
           ${board ? '' : `<span class="status-pill s-${it.status}">${esc(statusLabel(kind, it.status))}</span>`}
         </div>
         <div class="item-title">${esc(it.title)}</div>
-        <div class="item-meta">${meta}<span class="age" title="${kind === 'issues' ? 'How long this has been an issue' : 'Added'}">${clockIcon()} ${since ? esc(fmtAge(since, done && it.doneAt ? it.doneAt : todayISO())) : '–'}</span></div>
-        ${kind === 'issues' && !done ? `<div class="age-bar" title="Age"><i style="width:${Math.min(100, Math.max(4, (ageDays / 180) * 100))}%"></i></div>` : ''}
+        <div class="item-meta">${meta}<span class="age${kind === 'issues' && !done ? (ageDays >= 90 ? ' old' : ageDays >= 30 ? ' aging' : '') : ''}" title="${kind === 'issues' ? 'How long this has been an issue' : 'Added'}">${clockIcon()} ${since ? esc(fmtAge(since, done && it.doneAt ? it.doneAt : todayISO())) : '–'}</span></div>
         ${board && nextStatus ? `<button class="advance-btn" data-advance>Move to ${esc(nextStatus[1])} →</button>` : ''}
       </div>
       ${!done && !board ? `<button class="check-btn" data-complete aria-label="Mark ${kind === 'issues' ? 'resolved' : 'achieved'}"></button>` : ''}

@@ -317,8 +317,8 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .item-meta { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 6px; font-size: 13px; }
 .item-meta .age { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); margin-left: auto; }
 .ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
-.age-bar { height: 3px; border-radius: 3px; background: var(--surface-2); margin-top: 8px; overflow: hidden; }
-.age-bar i { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #7c9cbf, #f2a33a, #ef5a5a); }
+.item-meta .age.aging { color: #d98a1c; font-weight: 600; }
+.item-meta .age.old { color: var(--danger); font-weight: 600; }
 .check-btn {
   flex: none; align-self: center; width: 30px; height: 30px; margin-left: 6px; border-radius: 50%;
   border: 2px solid var(--line); background: transparent; position: relative;
