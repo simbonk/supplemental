@@ -2,6 +2,7 @@ import * as vault from './vault.js';
 import { state, nav, persist } from './state.js';
 import { todayISO, fmtDate } from './model.js';
 import { esc, toast, confirmSheet, askPin } from './ui.js';
+import { openWeeklySheet, reopenWeekly } from './weekly.js';
 import { THEMES, APPEARANCES, currentTheme, currentAppearance, setTheme, setAppearance, scaleFor, isDark } from './themes.js';
 
 let showAllAttempts = false;
@@ -16,6 +17,20 @@ export function renderSettings(view) {
 
   view.innerHTML = `
     <header class="page-head"><div><h1>Settings</h1><p class="muted">${real ? 'Your journal is encrypted on this device' : 'Demo mode'}</p></div></header>
+
+    ${showInstallTip() ? `<section class="card install-tip">
+      <img src="icons/apple-touch-icon.png" alt="" class="install-icon" width="64" height="64">
+      <div class="install-body">
+        <strong>Put Supplemental on your Home Screen</strong>
+        <p class="small muted">It opens full screen like a real app, works offline, and keeps your journal in its own private storage.</p>
+        <ol class="install-steps small">
+          <li>Tap <span class="kbd">${shareIcon()} Share</span> in Safari (on newer iOS, tap <span class="kbd">•••</span> first)</li>
+          <li>Choose <span class="kbd">Add to Home Screen</span></li>
+          <li>Open it from the new icon</li>
+        </ol>
+        <button class="btn primary block" data-install-done>Done, it's on my Home Screen</button>
+      </div>
+    </section>` : ''}
 
     ${!real ? `<section class="card callout">
       ${state.hasVault
@@ -74,6 +89,12 @@ export function renderSettings(view) {
         : `<p class="small">This is a year of sample data. When you set your PIN, the demo PIN starts as all zeros of the same length (for example 0000 for a 4-digit PIN), and you can change it here.</p>`}
     </section>
 
+    <h3 class="section-label">Weekly review</h3>
+    <section class="card list-card">
+      <button class="row-btn" data-weekly><span>Open this week's review<span class="muted small block">Top 3 issues, top goal, and how they're going</span></span><span class="chev">›</span></button>
+      <button class="row-btn" data-weekly-home><span>Show it on Home again</span><span class="chev">›</span></button>
+    </section>
+
     <h3 class="section-label">Help</h3>
     <section class="card list-card">
       <details class="collapse">
@@ -121,6 +142,13 @@ export function renderSettings(view) {
   on('[data-export]', exportJournal);
   on('[data-erase]', erase);
   on('[data-demo-pin]', changeDemoPin);
+  on('[data-weekly]', () => openWeeklySheet());
+  on('[data-weekly-home]', () => reopenWeekly());
+  on('[data-install-done]', () => {
+    try { localStorage.setItem('supplemental:ui:install-tip', 'done'); } catch { /* private mode */ }
+    toast('Nice. Enjoy the app');
+    renderSettings(view);
+  });
   on('[data-theme]', (e) => { setTheme(e.currentTarget.dataset.theme); renderSettings(view); });
   const ap = view.querySelector('[data-appearance]');
   if (ap) ap.addEventListener('click', (e) => {
@@ -133,6 +161,14 @@ export function renderSettings(view) {
   if (bio) bio.addEventListener('change', () => toggleBio(bio, view));
   const imp = view.querySelector('[data-import]');
   if (imp) imp.addEventListener('change', () => importJournal(imp, view));
+}
+
+// Hidden once marked done, or when already running from the Home Screen.
+function showInstallTip() {
+  const standalone = navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+  let done = false;
+  try { done = localStorage.getItem('supplemental:ui:install-tip') === 'done'; } catch { /* private mode */ }
+  return !standalone && !done;
 }
 
 function shareIcon() {

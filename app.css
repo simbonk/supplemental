@@ -495,3 +495,39 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .drop-slot { height: 6px; border-radius: 3px; background: var(--accent); margin: -2px 4px; }
 .board-col.drop-target { box-shadow: inset 0 0 0 2px var(--accent); }
 .board .drag-handle { margin-left: -4px; }
+
+/* Install tip */
+.install-tip { display: flex; gap: 14px; align-items: flex-start; border: 1.5px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--s4) 10%, var(--surface)), color-mix(in srgb, var(--s8) 10%, var(--surface))); }
+.install-icon { width: 64px; height: 64px; border-radius: 15px; flex: none; box-shadow: 0 6px 18px rgba(0, 0, 0, .25); }
+.install-body { flex: 1; min-width: 0; }
+.install-body p { margin: 4px 0 8px; }
+.install-steps { margin: 0 0 12px; padding-left: 18px; }
+.install-steps li { margin-bottom: 4px; }
+.kbd { display: inline-flex; align-items: center; gap: 3px; padding: 1px 7px; border-radius: 7px; background: var(--surface-2); font-weight: 600; white-space: nowrap; }
+
+/* Weekly review */
+.weekly.card { border: 1.5px solid color-mix(in srgb, var(--accent) 30%, transparent); }
+.wk-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.wk-title { font-size: 20px; font-weight: 700; margin-top: 2px; }
+.weekly .wk-x { position: static; flex: none; }
+.wk-score { margin: 8px 0 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.wk-sw { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+.weekly .section-label { margin: 16px 2px 8px; }
+.wk-item { background: var(--surface-2); border-radius: 14px; padding: 12px; margin-bottom: 8px; }
+.weekly:not(.card) .wk-item { background: var(--surface); }
+.wk-item-head { display: flex; gap: 10px; align-items: flex-start; }
+.wk-rank { font-weight: 750; color: #ef5a5a; min-width: 24px; }
+.wk-rank.goal { color: #34c39a; }
+.wk-item-title { font-weight: 600; line-height: 1.3; flex: 1; min-width: 0; }
+.wk-item-title .small { font-weight: 400; margin-top: 2px; }
+.trend { display: flex; align-items: center; gap: 6px; margin: 10px 0 8px; flex-wrap: wrap; }
+.trend-btn { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 11px; font-size: 13px; font-weight: 600; }
+.trend-btn.on.t-better { background: var(--success); border-color: var(--success); color: #fff; }
+.trend-btn.on.t-same { background: #7c9cbf; border-color: #7c9cbf; color: #fff; }
+.trend-btn.on.t-worse { background: var(--danger); border-color: var(--danger); color: #fff; }
+.wk-reflect { width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; text-align: left;
+  border: 0; background: transparent; padding: 4px 0 0; font-size: 13.5px; line-height: 1.35; }
+.wk-reflect .wk-meter { grid-column: 1 / -1; height: 4px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.wk-meter i { display: block; height: 100%; background: #ef5a5a; border-radius: 3px; }
+.wk-meter.goal i { background: #34c39a; }

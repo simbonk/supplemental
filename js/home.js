@@ -2,6 +2,7 @@ import { state, nav } from './state.js';
 import { SCORE_COLORS, scoreClass, iso, todayISO, addDays, fmtDate, averageScore, streak, openIssues, openGoals, feelingEmoji, fmtAge } from './model.js';
 import { esc, openSheet } from './ui.js';
 import { openDay } from './day.js';
+import { shouldShowWeekly, weeklyHTML, bindWeekly } from './weekly.js';
 
 let monthOffset = 0; // 0 = the 12 months ending this month
 
@@ -22,6 +23,8 @@ export function renderHome(view) {
         <p class="muted">${esc(fmtDate(today, { weekday: 'long', month: 'long', day: 'numeric' }))}</p>
       </div>
     </header>
+
+    ${shouldShowWeekly(data) ? weeklyHTML(data) : ''}
 
     <section class="stats">
       <div class="stat"><div class="stat-num">${avg30 ? `<i class="stat-sw ${scoreClass(Math.round(avg30))}" style="background:${SCORE_COLORS[Math.round(avg30)]}"></i>` : ''}${avg30 ? avg30.toFixed(1) : '–'}</div><div class="stat-label">30-day average</div></div>
@@ -61,6 +64,8 @@ export function renderHome(view) {
     </section>`;
 
   drawHeatmap(view);
+  const weekly = view.querySelector('.weekly');
+  if (weekly) bindWeekly(weekly, () => renderHome(view));
   view.querySelectorAll('[data-shift]').forEach((b) => b.addEventListener('click', () => {
     monthOffset = Math.min(0, monthOffset + Number(b.dataset.shift));
     renderHome(view);

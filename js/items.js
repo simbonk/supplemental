@@ -315,7 +315,7 @@ function segHTML(name, options, value) {
   return `<div class="segmented wide" data-chips="${name}">${options.map(([v, label]) => `<button type="button" data-v="${v}" class="${v === value ? 'on' : ''}">${esc(label)}</button>`).join('')}</div>`;
 }
 
-export function openEditor(kind, id, { onDone } = {}) {
+export function openEditor(kind, id, { onDone, reflect = false } = {}) {
   const cfg = CFG[kind];
   const isIssue = kind === 'issues';
   const existing = id ? listOf(kind).find((x) => x.id === id) : null;
@@ -379,7 +379,7 @@ export function openEditor(kind, id, { onDone } = {}) {
         ${segHTML('talked', TALKED, it.talked || 'not-yet')}
       </div>` : ''}
 
-      <details class="reflect" ${filledPrompts || !isIssue ? 'open' : ''}>
+      <details class="reflect" ${filledPrompts || !isIssue || reflect ? 'open' : ''}>
         <summary>${isIssue ? 'Think it through' : 'Shape it'}<span class="muted small">${isIssue ? 'Questions counselors often ask' : 'Make it real'}</span></summary>
         ${prompts.map(([k, q, hint]) => `
           <label class="field">
@@ -401,6 +401,13 @@ export function openEditor(kind, id, { onDone } = {}) {
   let skip = false;
   let celebrateOnClose = false;
   const title = form.title;
+  if (reflect) {
+    // Jump to the first unanswered question.
+    setTimeout(() => {
+      const empty = [...form.querySelectorAll('.reflect textarea')].find((t) => !t.value.trim());
+      (empty || form.querySelector('.reflect')).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 320);
+  }
   if (!existing) setTimeout(() => title.focus(), 300);
 
   form.querySelectorAll('[data-chips]').forEach((group) => group.addEventListener('click', (e) => {
