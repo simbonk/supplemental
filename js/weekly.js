@@ -25,7 +25,8 @@ function hasContent(data) {
 }
 
 export function shouldShowWeekly(data) {
-  return hasContent(data) && (data.weekly?.dismissed !== weekId());
+  // Demo data skips the banner to keep Home uncluttered; Settings can still open it.
+  return state.mode !== 'demo' && hasContent(data) && (data.weekly?.dismissed !== weekId());
 }
 
 // The issue's rank in the newest saved day from at least a week ago.
