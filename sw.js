@@ -1,6 +1,6 @@
 // Offline support: always try the network, fall back to the cached app shell.
 // Bump VERSION when files change so old caches are cleared.
-const VERSION = 'supplemental-v19';
+const VERSION = 'supplemental-v20';
 const SHELL = [
   './',
   'index.html',
@@ -43,7 +43,8 @@ self.addEventListener('activate', (e) => {
 // Network first, so a new version shows up on the next launch; the cache is the offline fallback.
 self.addEventListener('fetch', (e) => {
   const req = e.request;
-  if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
+  const url = new URL(req.url);
+  if (req.method !== 'GET' || url.origin !== location.origin || url.pathname.includes('/reminders/')) return;
   e.respondWith(
     fetch(req)
       .then((res) => {

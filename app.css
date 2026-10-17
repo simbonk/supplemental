@@ -576,3 +576,13 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .rem-daily select { flex: 1; min-width: 0; }
 .rem-daily .btn { flex: none; text-decoration: none; display: inline-flex; align-items: center; }
 .list-card.flush { margin: 8px -16px -14px; border-top: 1px solid var(--line); }
+
+/* Settings tabs */
+.set-tabs { margin-bottom: 18px; }
+.set-pane > .section-label:first-child { margin-top: 0; }
+.privacy-note { display: flex; gap: 14px; align-items: flex-start; }
+.privacy-note p { margin: 4px 0 0; }
+.privacy-note-icon {
+  flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center;
+  background: color-mix(in srgb, var(--success) 16%, transparent); color: var(--success);
+}

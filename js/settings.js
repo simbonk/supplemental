@@ -8,6 +8,8 @@ import { reminderPrefs, WEEKLY_CADENCES, BACKUP_CADENCES, DAILY_TIMES, dailyIcsU
 import { THEMES, APPEARANCES, currentTheme, currentAppearance, setTheme, setAppearance, scaleFor, isDark } from './themes.js';
 
 let showAllAttempts = false;
+const SETTINGS_TABS = [['general', 'General'], ['reminders', 'Reminders'], ['privacy', 'Privacy'], ['help', 'Help']];
+let settingsTab = 'general';
 
 export function renderSettings(view) {
   const real = state.mode === 'real';
@@ -29,30 +31,8 @@ export function renderSettings(view) {
         : `<p><strong>Ready to start?</strong> Setting a PIN (4 to 8 digits) clears the demo data and starts your own encrypted journal on this device.</p><button class="btn primary block" data-setup>Set your PIN</button>`}
     </section>` : ''}
 
-    ${real ? `<h3 class="section-label">Security</h3>
-    <section class="card list-card">
-      <button class="row-btn" data-change-pin><span>Change PIN</span><span class="chev">›</span></button>
-      <div class="row-btn">
-        <span>Unlock with Face ID<span class="muted small block">${bioOn ? 'On. Your PIN still works too.' : 'Off. Optional, on top of your PIN.'}</span></span>
-        <label class="switch"><input type="checkbox" data-bio ${bioOn ? 'checked' : ''}><i></i></label>
-      </div>
-      <button class="row-btn" data-lock><span>Lock now</span><span class="chev">›</span></button>
-    </section>
-    <p class="hint left">Supplemental locks itself whenever your phone locks or you switch to another app.</p>` : ''}
-
-    <h3 class="section-label">Login attempts</h3>
-    <section class="card">
-      <p class="small ${failedWeek ? 'warn' : 'muted'}">${failedWeek ? `${failedWeek} failed attempt${failedWeek === 1 ? '' : 's'} in the last 7 days.` : 'No failed attempts in the last 7 days.'}</p>
-      ${list.length ? `<ul class="attempts">${list.map((a) => `
-        <li><span class="dot ${a.ok ? 'ok' : 'bad'}"></span>
-          <span>${a.ok ? 'Success' : 'Failed'} <span class="muted">· ${esc(a.method)}</span></span>
-          <time class="muted">${esc(new Date(a.t).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }))}</time></li>`).join('')}</ul>` : '<p class="muted small">No attempts yet.</p>'}
-      <div class="row gap-s">
-        ${all.length > 8 ? `<button class="link-btn" data-more>${showAllAttempts ? 'Show fewer' : `Show all ${all.length}`}</button>` : ''}
-        ${real && all.length ? '<button class="link-btn" data-clear-log>Clear log</button>' : ''}
-      </div>
-    </section>
-
+    <div class="segmented wide set-tabs" data-settab>${SETTINGS_TABS.map(([v, l]) => `<button data-v="${v}" class="${settingsTab === v ? 'on' : ''}">${l}</button>`).join('')}</div>
+    <div class="set-pane" data-pane="general" ${settingsTab === 'general' ? '' : 'hidden'}>
     <h3 class="section-label">Backup</h3>
     <section class="card list-card">
       <button class="row-btn" data-export ${real ? '' : 'disabled'}><span>Export journal<span class="muted small block">An encrypted file that opens only with your current PIN.${real && lastBackup(state.data) ? ` Last saved ${esc(fmtDate(lastBackup(state.data), { month: 'short', day: 'numeric', year: 'numeric' }))}.` : ''}</span></span><span class="chev">›</span></button>
@@ -72,22 +52,15 @@ export function renderSettings(view) {
         </button>`).join('')}</div>
     </section>
 
-    <h3 class="section-label">Demo</h3>
-    <section class="card">
-      ${real
-        ? `<p class="small">Enter your demo PIN on the lock screen to open a year of sample data instead of your journal. It's always the same length as your real PIN (${vault.pinLength()} digits), so nobody watching can tell which one you typed. Nothing done in the demo is saved.</p>
-           <button class="btn block" data-demo-pin>Change demo PIN</button>`
-        : `<p class="small">This is a year of sample data. When you set your PIN, the demo PIN starts as all zeros of the same length (for example 0000 for a 4-digit PIN), and you can change it here.</p>`}
-    </section>
-
-    <h3 class="section-label">Reminders</h3>
+    </div>
+    <div class="set-pane" data-pane="reminders" ${settingsTab === 'reminders' ? '' : 'hidden'}>
     <section class="card reminders">
       <div class="rem-block">
         <strong>Daily check-in</strong>
-        <p class="muted small">Adds a repeating event with an alert to your phone's Calendar. To stop it, delete the event in Calendar.</p>
+        <p class="muted small">Adds a daily "Supplemental" event with an alert to your phone's Calendar. When Calendar asks, tap <strong>Subscribe</strong>, and if you see <strong>Remove Alerts</strong>, switch it off so the alert comes through. To stop it, delete that calendar in the Calendar app.</p>
         <div class="rem-daily">
           <select data-daily-time aria-label="Reminder time">${DAILY_TIMES.map((t) => `<option value="${t}" ${t === prefs.dailyAt ? 'selected' : ''}>${esc(fmtTime(t))}</option>`).join('')}</select>
-          <a class="btn primary" data-daily-add href="${dailyIcsUrl(prefs.dailyAt)}" target="_blank" rel="noopener">Add to Calendar</a>
+          <a class="btn primary" data-daily-add href="${dailyIcsUrl(prefs.dailyAt)}">Add to Calendar</a>
         </div>
       </div>
       <div class="rem-block">
@@ -106,6 +79,51 @@ export function renderSettings(view) {
       </div>
     </section>
 
+    </div>
+    <div class="set-pane" data-pane="privacy" ${settingsTab === 'privacy' ? '' : 'hidden'}>
+    <section class="card privacy-note">
+      <div class="privacy-note-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+      <div>
+        <strong>Private by design</strong>
+        <p class="small muted">Your journal never leaves this phone. There's no account, no server and no tracking. Everything is encrypted with your PIN before it's saved, so even someone who copied the app's files couldn't read them. Backups you export are encrypted the same way.</p>
+      </div>
+    </section>
+    ${real ? `<h3 class="section-label">Security</h3>
+    <section class="card list-card">
+      <button class="row-btn" data-change-pin><span>Change PIN</span><span class="chev">›</span></button>
+      <div class="row-btn">
+        <span>Unlock with Face ID<span class="muted small block">${bioOn ? 'On. Your PIN still works too.' : 'Off. Optional, on top of your PIN.'}</span></span>
+        <label class="switch"><input type="checkbox" data-bio ${bioOn ? 'checked' : ''}><i></i></label>
+      </div>
+      <button class="row-btn" data-lock><span>Lock now</span><span class="chev">›</span></button>
+    </section>
+    <p class="hint left">Supplemental locks itself whenever your phone locks or you switch to another app.</p>` : ''}
+
+    <h3 class="section-label">Demo PIN</h3>
+    <section class="card">
+      ${real
+        ? `<p class="small">Enter your demo PIN on the lock screen to open a year of sample data instead of your journal. It's always the same length as your real PIN (${vault.pinLength()} digits), so nobody watching can tell which one you typed. Nothing done in the demo is saved.</p>
+           <button class="btn block" data-demo-pin>Change demo PIN</button>`
+        : `<p class="small">This is a year of sample data. When you set your PIN, the demo PIN starts as all zeros of the same length (for example 0000 for a 4-digit PIN), and you can change it here.</p>`}
+    </section>
+
+    <h3 class="section-label">Login attempts</h3>
+    <section class="card">
+      <p class="small ${failedWeek ? 'warn' : 'muted'}">${failedWeek ? `${failedWeek} failed attempt${failedWeek === 1 ? '' : 's'} in the last 7 days.` : 'No failed attempts in the last 7 days.'}</p>
+      ${list.length ? `<ul class="attempts">${list.map((a) => `
+        <li><span class="dot ${a.ok ? 'ok' : 'bad'}"></span>
+          <span>${a.ok ? 'Success' : 'Failed'} <span class="muted">· ${esc(a.method)}</span></span>
+          <time class="muted">${esc(new Date(a.t).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }))}</time></li>`).join('')}</ul>` : '<p class="muted small">No attempts yet.</p>'}
+      <div class="row gap-s">
+        ${all.length > 8 ? `<button class="link-btn" data-more>${showAllAttempts ? 'Show fewer' : `Show all ${all.length}`}</button>` : ''}
+        ${real && all.length ? '<button class="link-btn" data-clear-log>Clear log</button>' : ''}
+      </div>
+    </section>
+
+    ${real ? `<h3 class="section-label">Danger zone</h3>
+    <section class="card"><button class="btn danger-ghost block" data-erase>Erase journal from this device</button></section>` : ''}
+    </div>
+    <div class="set-pane" data-pane="help" ${settingsTab === 'help' ? '' : 'hidden'}>
     <h3 class="section-label">Help</h3>
     <section class="card list-card">
       <details class="collapse">
@@ -136,10 +154,16 @@ export function renderSettings(view) {
       </details>
     </section>
 
-    ${real ? `<h3 class="section-label">Danger zone</h3>
-    <section class="card"><button class="btn danger-ghost block" data-erase>Erase journal from this device</button></section>` : ''}
-    <p class="muted small center mt">Supplemental · v1.0</p>`;
+    <p class="muted small center mt">Supplemental · v1.0</p>    </div>
+`;
 
+  view.querySelector('[data-settab]').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-v]');
+    if (!b) return;
+    settingsTab = b.dataset.v;
+    view.querySelectorAll('[data-settab] [data-v]').forEach((x) => x.classList.toggle('on', x === b));
+    view.querySelectorAll('[data-pane]').forEach((p) => { p.hidden = p.dataset.pane !== settingsTab; });
+  });
   const on = (sel, fn) => view.querySelectorAll(sel).forEach((el) => el.addEventListener('click', fn));
   on('[data-setup]', () => nav.startSetup());
   on('[data-lock]', () => nav.lock());

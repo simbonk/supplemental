@@ -15,8 +15,13 @@ export const DAILY_TIMES = Array.from({ length: 48 }, (_, i) => {
   return `${h}:${i % 2 ? '30' : '00'}`;
 });
 
+const isApple = /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent);
+
+// On Apple devices webcal:// hands the file straight to Calendar as a subscription.
+// Opening the plain .ics from a Home Screen app only showed a blank page.
 export function dailyIcsUrl(time) {
-  return `reminders/daily-${time.replace(':', '-')}.ics`;
+  const path = `reminders/daily-${time.replace(':', '-')}.ics`;
+  return isApple ? `webcal://${location.host}${location.pathname.replace(/[^/]*$/, '')}${path}` : path;
 }
 
 export function fmtTime(time) {
