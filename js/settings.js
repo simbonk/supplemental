@@ -19,19 +19,7 @@ export function renderSettings(view) {
   view.innerHTML = `
     <header class="page-head"><div><h1>Settings</h1><p class="muted">${real ? 'Your journal is encrypted on this device' : 'Demo mode'}</p></div></header>
 
-    ${showInstallTip() ? `<section class="card install-tip">
-      <img src="icons/apple-touch-icon.png" alt="" class="install-icon" width="64" height="64">
-      <div class="install-body">
-        <strong>Put Supplemental on your Home Screen</strong>
-        <p class="small muted">It opens full screen like a real app, works offline, and keeps your journal in its own private storage.</p>
-        <ol class="install-steps small">
-          <li>Tap <span class="kbd">${shareIcon()} Share</span> in Safari (on newer iOS, tap <span class="kbd">•••</span> first)</li>
-          <li>Choose <span class="kbd">Add to Home Screen</span></li>
-          <li>Open it from the new icon</li>
-        </ol>
-        <button class="btn primary block" data-install-done>Done, it's on my Home Screen</button>
-      </div>
-    </section>` : ''}
+    ${showInstallTip() ? installTipHTML() : ''}
 
     ${!real ? `<section class="card callout">
       ${state.hasVault
@@ -101,12 +89,13 @@ export function renderSettings(view) {
       <details class="collapse">
         <summary>Add Supplemental to your Home Screen</summary>
         <ol class="steps">
-          <li>Open this page in <strong>Safari</strong> on your iPhone.</li>
+          <li>On iPhone, open this page in <strong>Safari</strong>.</li>
           <li>Tap the <strong>Share</strong> button ${shareIcon()} at the bottom of the screen. On newer iOS, tap <strong>•••</strong> first, then Share.</li>
           <li>Scroll down and tap <strong>Add to Home Screen</strong>.</li>
           <li>Keep <strong>Open as Web App</strong> on if you see it, then tap <strong>Add</strong>.</li>
           <li>Open Supplemental from the new icon and set your PIN there.</li>
         </ol>
+        <p class="small"><strong>On Android:</strong> open this page in Chrome, tap <strong>⋮</strong>, then <strong>Install app</strong> or <strong>Add to Home screen</strong>.</p>
         <p class="hint left">The Home Screen app keeps its own storage, separate from Safari. Set your PIN and write your entries in the Home Screen app, not in a Safari tab. If you started in Safari, export there and import in the app.</p>
       </details>
       <details class="collapse">
@@ -150,6 +139,16 @@ export function renderSettings(view) {
     toast('Nice. Enjoy the app');
     renderSettings(view);
   });
+  on('[data-install-now]', async () => {
+    const prompt = installPrompt;
+    installPrompt = null;
+    prompt.prompt();
+    const { outcome } = await prompt.userChoice;
+    if (outcome === 'accepted') {
+      try { localStorage.setItem('supplemental:ui:install-tip', 'done'); } catch { /* private mode */ }
+    }
+    renderSettings(view);
+  });
   on('[data-theme]', (e) => { setTheme(e.currentTarget.dataset.theme); renderSettings(view); });
   const ap = view.querySelector('[data-appearance]');
   if (ap) ap.addEventListener('click', (e) => {
@@ -165,6 +164,36 @@ export function renderSettings(view) {
 }
 
 // Hidden once marked done, or when already running from the Home Screen.
+const isAndroid = /Android/i.test(navigator.userAgent);
+
+// Chrome on Android offers its own install prompt; keep it for the tip's button.
+let installPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  installPrompt = e;
+});
+
+function installTipHTML() {
+  const steps = isAndroid
+    ? `<li>Tap <span class="kbd">⋮</span> at the top right in Chrome</li>
+          <li>Choose <span class="kbd">Install app</span> or <span class="kbd">Add to Home screen</span></li>
+          <li>Open it from the new icon</li>`
+    : `<li>Tap <span class="kbd">${shareIcon()} Share</span> in Safari (on newer iOS, tap <span class="kbd">•••</span> first)</li>
+          <li>Choose <span class="kbd">Add to Home Screen</span></li>
+          <li>Open it from the new icon</li>`;
+  return `<section class="card install-tip">
+      <img src="icons/apple-touch-icon.png" alt="" class="install-icon" width="64" height="64">
+      <div class="install-body">
+        <strong>Put Supplemental on your Home Screen</strong>
+        <p class="small muted">It opens full screen like a real app, works offline, and keeps your journal in its own private storage.</p>
+        ${installPrompt ? '<button class="btn primary block" data-install-now>Install Supplemental</button>' : `<ol class="install-steps small">
+          ${steps}
+        </ol>`}
+        <button class="btn ${installPrompt ? 'ghost' : 'primary'} block" data-install-done>Done, it's on my Home Screen</button>
+      </div>
+    </section>`;
+}
+
 function showInstallTip() {
   const standalone = navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
   let done = false;
