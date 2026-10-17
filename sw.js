@@ -1,6 +1,6 @@
 // Offline support: serve the app shell from cache, refresh it in the background.
 // Bump VERSION when files change so old caches are cleared.
-const VERSION = 'supplemental-v2';
+const VERSION = 'supplemental-v3';
 const SHELL = [
   './',
   'index.html',
