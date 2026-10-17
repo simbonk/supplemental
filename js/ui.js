@@ -96,17 +96,25 @@ export function toast(msg) {
 
 // ---- Confirm ----
 
-export function confirmSheet({ title, body = '', confirm = 'Confirm', danger = false }) {
+// With `typeToConfirm`, the button stays disabled until that phrase is typed.
+export function confirmSheet({ title, body = '', confirm = 'Confirm', danger = false, typeToConfirm = '' }) {
   return new Promise((resolve) => {
     let answered = false;
     const s = openSheet(`
       <h2 class="sheet-title">${esc(title)}</h2>
       ${body ? `<p class="muted">${esc(body)}</p>` : ''}
+      ${typeToConfirm ? `<label class="field type-confirm"><span class="small">Type <strong>${esc(typeToConfirm)}</strong> to confirm</span>
+        <input type="text" data-type-confirm autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done"></label>` : ''}
       <div class="stack gap-s mt">
-        <button class="btn ${danger ? 'danger' : 'primary'} block" data-yes>${esc(confirm)}</button>
+        <button class="btn ${danger ? 'danger' : 'primary'} block" data-yes ${typeToConfirm ? 'disabled' : ''}>${esc(confirm)}</button>
         <button class="btn ghost block" data-close>Cancel</button>
       </div>`, { onClose: () => !answered && resolve(false) });
-    s.el.querySelector('[data-yes]').addEventListener('click', () => {
+    const yes = s.el.querySelector('[data-yes]');
+    s.el.querySelector('[data-type-confirm]')?.addEventListener('input', (e) => {
+      yes.disabled = e.target.value.trim().toLowerCase() !== typeToConfirm.toLowerCase();
+    });
+    yes.addEventListener('click', () => {
+      if (yes.disabled) return;
       answered = true;
       s.close();
       resolve(true);

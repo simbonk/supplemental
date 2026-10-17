@@ -371,6 +371,7 @@ async function erase() {
     body: 'Every day, issue and goal on this device will be deleted. This cannot be undone. Export a backup first if you might want it.',
     confirm: 'Erase everything',
     danger: true,
+    typeToConfirm: 'delete everything',
   });
   if (!ok) return;
   const pin = await askPin('Enter your PIN to erase');

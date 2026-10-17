@@ -110,7 +110,7 @@ function forgotPin() {
     </div>`);
   s.el.querySelector('[data-erase]').addEventListener('click', async () => {
     s.close();
-    const ok = await confirmSheet({ title: 'Erase everything?', body: 'Every day, issue and goal on this device will be gone for good.', confirm: 'Erase everything', danger: true });
+    const ok = await confirmSheet({ title: 'Erase everything?', body: 'Every day, issue and goal on this device will be gone for good.', confirm: 'Erase everything', danger: true, typeToConfirm: 'delete everything' });
     if (!ok) return;
     vault.eraseEverything();
     state.hasVault = false;

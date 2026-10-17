@@ -586,3 +586,8 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
   flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center;
   background: color-mix(in srgb, var(--success) 16%, transparent); color: var(--success);
 }
+
+/* Type-to-confirm for destructive actions */
+.type-confirm { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
+.type-confirm input { width: 100%; }
+.btn:disabled { opacity: .4; }
