@@ -62,8 +62,18 @@ h1, h2, h3 { margin: 0; letter-spacing: -0.02em; }
 .gap-s { gap: 10px; }
 .warn { color: var(--danger); }
 
-/* Privacy blur for the app switcher */
-body.privacy #app { filter: blur(24px); }
+/* Privacy cover for the app switcher: hide the journal, show just the name */
+body.privacy #app { visibility: hidden; }
+body.privacy::after {
+  content: 'Supplemental';
+  position: fixed; inset: 0; z-index: 9999;
+  display: grid; place-items: center;
+  font-size: 40px; font-weight: 800; letter-spacing: -0.02em;
+  color: var(--s6);
+  background: linear-gradient(90deg, var(--s3), var(--s6), var(--s9)) center / 8.5em 1.3em no-repeat, #fff;
+  -webkit-background-clip: text, border-box; background-clip: text, border-box;
+  -webkit-text-fill-color: transparent;
+}
 
 /* ---------- Lock screen ---------- */
 .lock {
