@@ -4,7 +4,7 @@ import { todayISO, fmtDate } from './model.js';
 import { esc, toast, confirmSheet, askPin } from './ui.js';
 import { openWeeklySheet, reopenWeekly } from './weekly.js';
 import { exportJournal, lastBackup } from './backup.js';
-import { reminderPrefs, WEEKLY_CADENCES, BACKUP_CADENCES, DAILY_TIMES, dailyIcsUrl, fmtTime } from './reminders.js';
+import { reminderPrefs, WEEKLY_CADENCES, BACKUP_CADENCES, DAILY_TIMES, dailyIcsUrl, dailyHint, isApple, fmtTime } from './reminders.js';
 import { THEMES, APPEARANCES, currentTheme, currentAppearance, setTheme, setAppearance, scaleFor, isDark } from './themes.js';
 
 let showAllAttempts = false;
@@ -57,10 +57,10 @@ export function renderSettings(view) {
     <section class="card reminders">
       <div class="rem-block">
         <strong>Daily check-in</strong>
-        <p class="muted small">Adds a daily "Supplemental" event with an alert to your phone's Calendar. When Calendar opens, keep <strong>Event Alerts</strong> on and tap the checkmark. To stop it, delete that calendar in the Calendar app.</p>
+        <p class="muted small">${dailyHint()}</p>
         <div class="rem-daily">
           <select data-daily-time aria-label="Reminder time">${DAILY_TIMES.map((t) => `<option value="${t}" ${t === prefs.dailyAt ? 'selected' : ''}>${esc(fmtTime(t))}</option>`).join('')}</select>
-          <a class="btn primary" data-daily-add href="${dailyIcsUrl(prefs.dailyAt)}">Add to Calendar</a>
+          <a class="btn primary" data-daily-add href="${dailyIcsUrl(prefs.dailyAt)}" ${isApple ? '' : 'target="_blank" rel="noopener"'}>Add to Calendar</a>
         </div>
       </div>
       <div class="rem-block">
