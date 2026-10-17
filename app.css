@@ -389,6 +389,8 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .steps { padding-left: 36px !important; }
 .steps li { margin-bottom: 8px; }
 .prose p { margin: 0 0 10px; }
+.prose ul { margin: 0 0 12px; padding-left: 18px; }
+.prose li { margin-bottom: 6px; }
 
 /* ---------- Sheet ---------- */
 /* The wrap tracks the visual viewport, so the on-screen keyboard never pushes the

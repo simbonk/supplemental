@@ -1,7 +1,7 @@
 import * as vault from './vault.js';
 import { state, nav, persist } from './state.js';
 import { todayISO, fmtDate } from './model.js';
-import { esc, toast, confirmSheet, askPin } from './ui.js';
+import { esc, toast, confirmSheet, askPin, openSheet } from './ui.js';
 import { openWeeklySheet, reopenWeekly } from './weekly.js';
 import { exportJournal, lastBackup } from './backup.js';
 import { reminderPrefs, WEEKLY_CADENCES, BACKUP_CADENCES, DAILY_TIMES, dailyIcsUrl, dailyHint, isApple, fmtTime } from './reminders.js';
@@ -35,8 +35,8 @@ export function renderSettings(view) {
     <div class="set-pane" data-pane="general" ${settingsTab === 'general' ? '' : 'hidden'}>
     <h3 class="section-label">Backup</h3>
     <section class="card list-card">
-      <button class="row-btn" data-export ${real ? '' : 'disabled'}><span>Export journal<span class="muted small block">An encrypted file that opens only with your current PIN.${real && lastBackup(state.data) ? ` Last saved ${esc(fmtDate(lastBackup(state.data), { month: 'short', day: 'numeric', year: 'numeric' }))}.` : ''}</span></span><span class="chev">›</span></button>
-      <label class="row-btn ${real ? '' : 'disabled'}"><span>Import journal<span class="muted small block">Replaces what's here. You'll need the backup's PIN.</span></span><span class="chev">›</span>
+      <button class="row-btn" data-export ${real ? '' : 'disabled'}><span>Export journal<span class="muted small block">An encrypted file, protected by a passphrase or your PIN.${real && lastBackup(state.data) ? ` Last saved ${esc(fmtDate(lastBackup(state.data), { month: 'short', day: 'numeric', year: 'numeric' }))}.` : ''}</span></span><span class="chev">›</span></button>
+      <label class="row-btn ${real ? '' : 'disabled'}"><span>Import journal<span class="muted small block">Replaces what's here. You'll need the backup's passphrase or PIN.</span></span><span class="chev">›</span>
         <input type="file" accept=".supplemental,.json,application/json" data-import hidden ${real ? '' : 'disabled'}></label>
     </section>
     ${real ? '' : '<p class="hint left">Set your PIN first to export or import.</p>'}
@@ -140,13 +140,27 @@ export function renderSettings(view) {
         <p class="hint left">The Home Screen app keeps its own storage, separate from Safari. Set your PIN and write your entries in the Home Screen app, not in a Safari tab. If you started in Safari, export there and import in the app.</p>
       </details>
       <details class="collapse">
-        <summary>How your journal is protected</summary>
+        <summary>How your journal is protected, and its limits</summary>
         <div class="prose small">
-          <p>Everything stays on this phone. There is no server and no account; this page is just the app's code.</p>
-          <p>Your entries are encrypted with AES-256-GCM. The key comes from your PIN through Argon2id, a deliberately slow, memory-hungry function, so copied files are useless without the PIN, and each guess is expensive.</p>
-          <p>A 4-digit PIN has 10,000 combinations and an 8-digit one has 100 million, so longer really is safer. A PIN stops someone poking at the phone, and the lock screen slows down after 5 wrong tries. A determined attacker who copies the files and has serious computing power could still try every PIN over time, so don't treat this as a vault for anything you couldn't bear to have read.</p>
-          <p>Face ID is optional and off by default. When it's on, a passkey protected by Face ID can unlock the journal. If Face ID fails, iPhone can fall back to the phone passcode, so anyone who knows your phone passcode could get in that way. Leave it off if that matters to you.</p>
-          <p>Backups are encrypted the same way. Export now and then: if the app is deleted, its data goes with it.</p>
+          <p><strong>What the app does</strong></p>
+          <ul>
+            <li>Everything stays on this phone. There's no account and no server. The website only delivers the app's code; your entries never go to it.</li>
+            <li>Entries are encrypted with AES-256-GCM before they're saved. The key comes from your PIN through Argon2id, a deliberately slow, memory-hungry function (64 MB and about half a second per guess).</li>
+            <li>The lock screen slows down after 5 wrong tries, and every attempt is logged under Privacy.</li>
+            <li>It locks itself whenever your phone locks or you switch apps, and hides your journal behind a cover in the app switcher.</li>
+            <li>A demo PIN opens sample data instead, so you're never forced to open the real thing in front of someone.</li>
+            <li>Backups can have their own passphrase, protected with an even slower setting.</li>
+          </ul>
+          <p><strong>Where it's weaker</strong></p>
+          <ul>
+            <li><strong>Short PINs can be guessed offline.</strong> The lock-screen delays only protect the app itself. Someone who copies the encrypted data can try every PIN on their own computer: a 6-digit PIN in hours on a laptop and well under an hour on a gaming graphics card. An 8-digit PIN takes about 100 times longer.</li>
+            <li><strong>Your phone passcode is the front door.</strong> Copying the data needs your unlocked phone and a computer. Keep your phone passcode private and different from your Supplemental PIN.</li>
+            <li><strong>Backup files travel.</strong> A backup protected only by your PIN has the same weakness, but anywhere the file ends up. A passphrase fixes this.</li>
+            <li><strong>Face ID can fall back to your phone passcode,</strong> so anyone who knows it could unlock the journal that way. Leave Face ID off if that matters.</li>
+            <li><strong>The app's code comes from the website.</strong> Someone who took over the accounts that publish it could ship a version that records your PIN.</li>
+            <li><strong>The demo PIN is stored with a fast hash,</strong> so it can be recovered easily. It only reveals the demo PIN and its length, never your journal.</li>
+          </ul>
+          <p>For keeping a private journal private from people around you, this is strong. Against a determined attacker with your phone passcode and serious computing power, a PIN slows them down but won't stop them.</p>
         </div>
       </details>
       <details class="collapse">
@@ -354,6 +368,27 @@ async function toggleBio(input, view) {
   renderSettings(view);
 }
 
+function askPassphrase() {
+  return new Promise((resolve) => {
+    let done = false;
+    const s = openSheet(`
+      <h2 class="sheet-title">Enter the backup's passphrase</h2>
+      <p class="muted small">The passphrase you chose when you made this backup.</p>
+      <label class="field"><input type="text" data-pass autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
+      <div class="stack gap-s mt"><button class="btn primary block" data-open>Open backup</button></div>`, { onClose: () => !done && resolve(null) });
+    const input = s.el.querySelector('[data-pass]');
+    const go = () => {
+      if (!input.value.trim()) return;
+      done = true;
+      s.close();
+      resolve(input.value.trim());
+    };
+    s.el.querySelector('[data-open]').addEventListener('click', go);
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
+    setTimeout(() => input.focus(), 300);
+  });
+}
+
 async function importJournal(input, view) {
   const f = input.files && input.files[0];
   input.value = '';
@@ -365,14 +400,18 @@ async function importJournal(input, view) {
     toast(e.message || 'Could not read that file');
     return;
   }
-  const pin = await askPin('Enter the backup\'s PIN', 'The PIN you had when the backup was made.');
-  if (!pin) return;
+  const usesPass = vault.backupUsesPassphrase(record);
+  const secret = usesPass
+    ? await askPassphrase()
+    : await askPin('Enter the backup\'s PIN', 'This backup uses the PIN you had when it was made.');
+  if (!secret) return;
   let data;
+  toast('Opening backup…');
   try {
-    data = await vault.openBackup(record, pin);
+    data = await vault.openBackup(record, secret);
   } catch {
-    vault.logAttempt(false, 'Backup PIN');
-    toast('Wrong PIN for that backup');
+    vault.logAttempt(false, usesPass ? 'Backup passphrase' : 'Backup PIN');
+    toast(usesPass ? 'Wrong passphrase for that backup' : 'Wrong PIN for that backup');
     return;
   }
   const days = Object.keys(data.days || {}).length;

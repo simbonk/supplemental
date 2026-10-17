@@ -198,12 +198,34 @@ export async function unlockWithBio() {
   return { session, data };
 }
 
-// ---- Backup files (still encrypted; need the PIN that was set when exported) ----
+// ---- Backup files ----
+// A backup gets its own random key, wrapped with a passphrase (not the PIN) using a
+// heavier Argon2id setting, since exporting is rare and the file may travel.
+// Older backups (v1) are a copy of the vault and open with the PIN from that time.
 
-export function exportBackup() {
+export const BACKUP_KDF = { alg: 'argon2id', m: 65536, t: 10, p: 1 };
+
+export async function exportBackup(data, passphrase) {
+  const key = randomBytes(32);
+  const kdf = { ...BACKUP_KDF, salt: toB64(randomBytes(16)) };
+  const kek = await deriveKeyFromPin(passphrase, kdf.salt, kdf);
+  const record = {
+    app: 'supplemental',
+    v: 2,
+    kind: 'backup',
+    kdf,
+    wrapped: await seal(kek, key),
+    data: await sealJSON(await aesKey(key), data),
+    exportedAt: Date.now(),
+  };
+  key.fill(0);
+  return JSON.stringify(record);
+}
+
+// Without a passphrase: a copy of the vault, which opens with the current PIN.
+export function exportPinBackup() {
   const record = readVault();
-  const copy = { ...record, bio: null, exportedAt: Date.now() };
-  return JSON.stringify(copy);
+  return JSON.stringify({ ...record, bio: null, exportedAt: Date.now() });
 }
 
 export function parseBackup(text) {
@@ -214,8 +236,11 @@ export function parseBackup(text) {
   return record;
 }
 
-export async function openBackup(record, pin) {
-  const { session, data } = await openRecordWithPin(record, pin);
+export const backupUsesPassphrase = (record) => record.kind === 'backup';
+
+// `secret` is the passphrase for new backups, or the old PIN for v1 ones.
+export async function openBackup(record, secret) {
+  const { session, data } = await openRecordWithPin(record, secret);
   wipeSession(session);
   return data;
 }
