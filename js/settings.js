@@ -57,7 +57,7 @@ export function renderSettings(view) {
     <section class="card reminders">
       <div class="rem-block">
         <strong>Daily check-in</strong>
-        <p class="muted small">Adds a daily "Supplemental" event with an alert to your phone's Calendar. When Calendar asks, tap <strong>Subscribe</strong>, and if you see <strong>Remove Alerts</strong>, switch it off so the alert comes through. To stop it, delete that calendar in the Calendar app.</p>
+        <p class="muted small">Adds a daily "Supplemental" event with an alert to your phone's Calendar. When Calendar opens, keep <strong>Event Alerts</strong> on and tap the checkmark. To stop it, delete that calendar in the Calendar app.</p>
         <div class="rem-daily">
           <select data-daily-time aria-label="Reminder time">${DAILY_TIMES.map((t) => `<option value="${t}" ${t === prefs.dailyAt ? 'selected' : ''}>${esc(fmtTime(t))}</option>`).join('')}</select>
           <a class="btn primary" data-daily-add href="${dailyIcsUrl(prefs.dailyAt)}">Add to Calendar</a>
