@@ -20,8 +20,8 @@ export function renderHome(view) {
   view.innerHTML = `
     <header class="page-head">
       <div>
-        <h1>Supplemental</h1>
-        <p class="muted">${esc(fmtDate(today, { weekday: 'long', month: 'long', day: 'numeric' }))}</p>
+        <h1>${esc(fmtDate(today, { weekday: 'long' }))}</h1>
+        <p class="muted">${esc(fmtDate(today, { month: 'long', day: 'numeric', year: 'numeric' }))}</p>
       </div>
     </header>
 

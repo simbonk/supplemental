@@ -110,17 +110,28 @@ body.privacy::after {
 /* ---------- Shell ---------- */
 .shell { min-height: 100dvh; }
 .view {
-  padding: calc(var(--safe-top) + 14px) 16px calc(var(--safe-bottom) + 100px);
+  padding: 14px 16px calc(var(--safe-bottom) + 100px);
   max-width: 640px; margin: 0 auto;
 }
-.demo-banner {
+.topbar {
   position: sticky; top: 0; z-index: 20;
+  padding-top: var(--safe-top);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.app-head { display: flex; align-items: flex-end; justify-content: center; height: 50px; padding-bottom: 9px; }
+.wordmark {
+  font-size: 21px; font-weight: 800; letter-spacing: -0.02em; text-decoration: none;
+  background: linear-gradient(90deg, var(--s3), var(--s6), var(--s9));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: var(--s6);
+}
+.demo-banner {
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  padding: calc(var(--safe-top) + 8px) 16px 8px;
+  padding: 8px 16px;
   background: linear-gradient(90deg, var(--s3), var(--s6));
   color: #fff; font-size: 13px; font-weight: 500;
 }
-.demo-banner + .view { padding-top: 14px; }
 .chip-btn { border: 0; border-radius: 999px; padding: 6px 12px; background: rgba(255, 255, 255, .95); color: #111; font-weight: 600; font-size: 13px; white-space: nowrap; }
 
 .tabbar {
