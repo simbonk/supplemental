@@ -1,6 +1,6 @@
 // Offline support: always try the network, fall back to the cached app shell.
 // Bump VERSION when files change so old caches are cleared.
-const VERSION = 'supplemental-v29';
+const VERSION = 'supplemental-v30';
 const SHELL = [
   './',
   'index.html',

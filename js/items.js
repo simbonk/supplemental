@@ -159,13 +159,15 @@ function renderBoard(body, kind) {
   const openRank = new Map(all.filter((x) => !isDone(kind, x)).map((x, i) => [x.id, i + 1]));
   body.innerHTML = `<div class="board">${CFG[kind].statuses.map(([key, label]) => {
     let items = all.filter((x) => x.status === key);
-    if (key === CFG[kind].doneKey) items = items.sort((a, b) => (b.doneAt || '').localeCompare(a.doneAt || ''));
+    items = key === CFG[kind].doneKey
+      ? items.sort((a, b) => (b.doneAt || '').localeCompare(a.doneAt || ''))
+      : boardSort(items);
     return `<section class="board-col">
       <h3 class="board-head"><span class="status-dot s-${key}"></span>${esc(label)}<span class="count">${items.length}</span></h3>
       <div class="board-cards" data-status="${key}">${items.length ? items.map((it) => cardHTML(kind, it, { rank: openRank.get(it.id), board: true, draggable: true })).join('') : '<div class="empty small">Nothing here</div>'}</div>
     </section>`;
   }).join('')}</div>
-  <p class="hint">Drag a card by its handle to reorder it or move it to another column. Swipe sideways for more columns.</p>`;
+  <p class="hint">Drag a card by its handle to reorder it or move it to another column. This doesn't change the ranking in List. Swipe sideways for more columns.</p>`;
   enableBoardDrag(body, kind);
 }
 
@@ -252,24 +254,28 @@ async function dropCard(kind, id, status, beforeId, rect) {
   const from = order.indexOf(it.status);
   const to = order.indexOf(status);
   const finished = await setStatus(kind, it, status);
-  // Reposition in the priority order: before the card it was dropped above,
-  // or after the last card already in that column.
-  const rest = list.filter((x) => x.id !== id);
-  let at = beforeId ? rest.findIndex((x) => x.id === beforeId) : -1;
-  if (at < 0) {
-    const lastInCol = rest.map((x) => x.status).lastIndexOf(status);
-    at = lastInCol + 1;
-  }
-  rest.splice(at, 0, it);
-  state.data[kind] = rest;
+  // The board keeps its own order within each column; the list's ranking is untouched.
+  const col = boardSort(list.filter((x) => x.status === status && x.id !== id));
+  const at = beforeId ? col.findIndex((x) => x.id === beforeId) : -1;
+  col.splice(at < 0 ? col.length : at, 0, it);
+  col.forEach((x, i) => { x.boardPos = i; });
   await persist();
   if (finished) celebrate(CFG[kind].celebrate);
   else if (to > from) celebrate(`Moved to ${CFG[kind].statuses[to][1]}!`, { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2, small: true });
   else haptic();
 }
 
+// Cards placed by hand on the board come first, in that order; the rest follow in list rank.
+function boardSort(items) {
+  return items
+    .map((x, i) => [x, i])
+    .sort(([a, i], [b, j]) => (a.boardPos ?? Infinity) - (b.boardPos ?? Infinity) || i - j)
+    .map(([x]) => x);
+}
+
 async function setStatus(kind, it, status) {
   const wasDone = isDone(kind, it);
+  if (it.status !== status) delete it.boardPos;
   it.status = status;
   const nowDone = isDone(kind, it);
   if (nowDone && !wasDone) it.doneAt = todayISO();
