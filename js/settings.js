@@ -90,7 +90,7 @@ export function renderSettings(view) {
         <summary>Add Supplemental to your Home Screen</summary>
         <ol class="steps">
           <li>On iPhone, open this page in <strong>Safari</strong>.</li>
-          <li>Tap the <strong>Share</strong> button ${shareIcon()} at the bottom of the screen. On newer iOS, tap <strong>•••</strong> first, then Share.</li>
+          <li>Tap the <strong>Share</strong> button ${shareIcon()} at the bottom of the screen. On newer iOS, tap the menu button ${menuIcon()} to the left of the address first, then Share.</li>
           <li>Scroll down and tap <strong>Add to Home Screen</strong>.</li>
           <li>Keep <strong>Open as Web App</strong> on if you see it, then tap <strong>Add</strong>.</li>
           <li>Open Supplemental from the new icon and set your PIN there.</li>
@@ -178,7 +178,7 @@ function installTipHTML() {
     ? `<li>Tap <span class="kbd">⋮</span> at the top right in Chrome</li>
           <li>Choose <span class="kbd">Install app</span> or <span class="kbd">Add to Home screen</span></li>
           <li>Open it from the new icon</li>`
-    : `<li>Tap <span class="kbd">${shareIcon()} Share</span> in Safari (on newer iOS, tap <span class="kbd">•••</span> first)</li>
+    : `<li>Tap <span class="kbd">${shareIcon()} Share</span> in Safari (on newer iOS, tap <span class="kbd">${menuIcon()}</span> left of the address first)</li>
           <li>Choose <span class="kbd">Add to Home Screen</span></li>
           <li>Open it from the new icon</li>`;
   return `<section class="card install-tip">
@@ -199,6 +199,11 @@ function showInstallTip() {
   let done = false;
   try { done = localStorage.getItem('supplemental:ui:install-tip') === 'done'; } catch { /* private mode */ }
   return !standalone && !done;
+}
+
+// Safari's page menu button on newer iOS: three lines, each shorter than the last.
+function menuIcon() {
+  return '<svg class="menu-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-label="menu"><path d="M4 7h16M4 12h12M4 17h8"/></svg>';
 }
 
 function shareIcon() {
