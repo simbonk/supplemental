@@ -164,10 +164,9 @@ export function renderSettings(view) {
         </div>
       </details>
       <details class="collapse">
-        <summary>Why "Supplemental", and why it works this way</summary>
+        <summary>Why Supplemental works the way it does</summary>
         <div class="prose small">
-          <p>Every captain's log has the official entry, and then the supplemental one: the note added afterward, when there's time to say what really happened. This is that log, just for you.</p>
-          <p>It's also a supplement, not a substitute. It won't have the hard conversation for you, but it helps you walk into one clear-headed, with specifics instead of a vague bad mood.</p>
+          <p>Supplemental is a supplement, not a substitute. It won't have the hard conversation for you, but it helps you walk into one clear-headed, with specifics instead of a vague bad mood.</p>
           <p><strong>Why each piece is there</strong></p>
           <ul>
             <li><strong>One number a day.</strong> Memory is unreliable: one bad week can color how a whole year feels, and slow slides go unnoticed. A daily score takes five seconds, and after a few months the heat map shows the real pattern, good stretches included.</li>
