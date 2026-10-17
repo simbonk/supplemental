@@ -206,7 +206,33 @@ function showShell() {
     </div>`;
   const demoBtn = $('[data-demo-action]', app);
   if (demoBtn) demoBtn.addEventListener('click', () => (state.hasVault ? lock() : startSetup()));
+  bindTabbar($('.tabbar', app));
   route();
+}
+
+// iOS swallows the first tap while the page is still coasting from a scroll,
+// so tabs switch on touchend rather than waiting for a click that never comes.
+function bindTabbar(bar) {
+  let start = null;
+  bar.addEventListener('touchstart', (e) => {
+    const t = e.touches[0];
+    start = { x: t.clientX, y: t.clientY, tab: e.target.closest('.tab') };
+  }, { passive: true });
+  bar.addEventListener('touchend', (e) => {
+    const t = e.changedTouches[0];
+    const tab = start?.tab;
+    const moved = start && Math.hypot(t.clientX - start.x, t.clientY - start.y) > 12;
+    start = null;
+    if (!tab || moved || e.target.closest('.tab') !== tab) return;
+    e.preventDefault(); // no follow-up click, so it doesn't fire twice
+    nav.go(tab.dataset.tab);
+  });
+  bar.addEventListener('click', (e) => {
+    const tab = e.target.closest('.tab');
+    if (!tab) return;
+    e.preventDefault();
+    nav.go(tab.dataset.tab);
+  });
 }
 
 function route() {
