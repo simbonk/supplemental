@@ -1,0 +1,235 @@
+import * as vault from './vault.js';
+import { state, nav, persist } from './state.js';
+import { todayISO, fmtDate } from './model.js';
+import { esc, toast, confirmSheet, askPin } from './ui.js';
+
+let showAllAttempts = false;
+
+export function renderSettings(view) {
+  const real = state.mode === 'real';
+  const all = vault.attempts();
+  const list = showAllAttempts ? all : all.slice(0, 8);
+  const weekAgo = Date.now() - 7 * 86400000;
+  const failedWeek = all.filter((a) => !a.ok && a.t > weekAgo).length;
+  const bioOn = vault.bioEnrolled();
+
+  view.innerHTML = `
+    <header class="page-head"><div><h1>Settings</h1><p class="muted">${real ? 'Your journal is encrypted on this device' : 'Demo mode'}</p></div></header>
+
+    ${!real ? `<section class="card callout">
+      ${state.hasVault
+        ? `<p>You're looking at demo data. Nothing here is saved. Lock to go back to your own journal.</p><button class="btn primary block" data-lock>Lock</button>`
+        : `<p><strong>Ready to start?</strong> Setting a 6-digit PIN clears the demo data and starts your own encrypted journal on this device.</p><button class="btn primary block" data-setup>Set your PIN</button>`}
+    </section>` : ''}
+
+    ${real ? `<h3 class="section-label">Security</h3>
+    <section class="card list-card">
+      <button class="row-btn" data-change-pin><span>Change PIN</span><span class="chev">›</span></button>
+      <div class="row-btn">
+        <span>Unlock with Face ID<span class="muted small block">${bioOn ? 'On. Your PIN still works too.' : 'Off. Optional, on top of your PIN.'}</span></span>
+        <label class="switch"><input type="checkbox" data-bio ${bioOn ? 'checked' : ''}><i></i></label>
+      </div>
+      <button class="row-btn" data-lock><span>Lock now</span><span class="chev">›</span></button>
+    </section>
+    <p class="hint left">Supplemental locks itself whenever your phone locks or you switch to another app.</p>` : ''}
+
+    <h3 class="section-label">Login attempts</h3>
+    <section class="card">
+      <p class="small ${failedWeek ? 'warn' : 'muted'}">${failedWeek ? `${failedWeek} failed attempt${failedWeek === 1 ? '' : 's'} in the last 7 days.` : 'No failed attempts in the last 7 days.'}</p>
+      ${list.length ? `<ul class="attempts">${list.map((a) => `
+        <li><span class="dot ${a.ok ? 'ok' : 'bad'}"></span>
+          <span>${a.ok ? 'Success' : 'Failed'} <span class="muted">· ${esc(a.method)}</span></span>
+          <time class="muted">${esc(new Date(a.t).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }))}</time></li>`).join('')}</ul>` : '<p class="muted small">No attempts yet.</p>'}
+      <div class="row gap-s">
+        ${all.length > 8 ? `<button class="link-btn" data-more>${showAllAttempts ? 'Show fewer' : `Show all ${all.length}`}</button>` : ''}
+        ${real && all.length ? '<button class="link-btn" data-clear-log>Clear log</button>' : ''}
+      </div>
+    </section>
+
+    <h3 class="section-label">Backup</h3>
+    <section class="card list-card">
+      <button class="row-btn" data-export ${real ? '' : 'disabled'}><span>Export journal<span class="muted small block">An encrypted file. It opens only with your current PIN.</span></span><span class="chev">›</span></button>
+      <label class="row-btn ${real ? '' : 'disabled'}"><span>Import journal<span class="muted small block">Replaces what's here. You'll need the backup's PIN.</span></span><span class="chev">›</span>
+        <input type="file" accept=".supplemental,.json,application/json" data-import hidden ${real ? '' : 'disabled'}></label>
+    </section>
+    ${real ? '' : '<p class="hint left">Set your PIN first to export or import.</p>'}
+
+    <h3 class="section-label">Demo</h3>
+    <section class="card">
+      <p class="small">Enter the demo PIN <strong class="mono">000000</strong> on the lock screen to explore a month of sample data. Nothing done in the demo is saved, and your real journal stays locked.</p>
+    </section>
+
+    <h3 class="section-label">Help</h3>
+    <section class="card list-card">
+      <details class="collapse">
+        <summary>Add Supplemental to your Home Screen</summary>
+        <ol class="steps">
+          <li>Open this page in <strong>Safari</strong> on your iPhone.</li>
+          <li>Tap the <strong>Share</strong> button ${shareIcon()} at the bottom of the screen. On newer iOS, tap <strong>•••</strong> first, then Share.</li>
+          <li>Scroll down and tap <strong>Add to Home Screen</strong>.</li>
+          <li>Keep <strong>Open as Web App</strong> on if you see it, then tap <strong>Add</strong>.</li>
+          <li>Open Supplemental from the new icon and set your PIN there.</li>
+        </ol>
+        <p class="hint left">The Home Screen app keeps its own storage, separate from Safari. Set your PIN and write your entries in the Home Screen app, not in a Safari tab. If you started in Safari, export there and import in the app.</p>
+      </details>
+      <details class="collapse">
+        <summary>How your journal is protected</summary>
+        <div class="prose small">
+          <p>Everything stays on this phone. There is no server and no account; this page is just the app's code.</p>
+          <p>Your entries are encrypted with AES-256-GCM. The key comes from your PIN through Argon2id, a deliberately slow, memory-hungry function, so copied files are useless without the PIN, and each guess is expensive.</p>
+          <p>A 6-digit PIN has a million combinations. That stops someone poking at the phone, and the lock screen slows down after 5 wrong tries. A determined attacker who copies the files and has serious computing power could still try every PIN over time, so don't treat this as a vault for anything you couldn't bear to have read.</p>
+          <p>Face ID is optional and off by default. When it's on, a passkey protected by Face ID can unlock the journal. If Face ID fails, iPhone can fall back to the phone passcode, so anyone who knows your phone passcode could get in that way. Leave it off if that matters to you.</p>
+          <p>Backups are encrypted the same way. Export now and then: if the app is deleted, its data goes with it.</p>
+        </div>
+      </details>
+      <details class="collapse">
+        <summary>Why "Supplemental"?</summary>
+        <div class="prose small"><p>Every captain's log needs a supplemental entry. This is the one that's just for you.</p></div>
+      </details>
+    </section>
+
+    ${real ? `<h3 class="section-label">Danger zone</h3>
+    <section class="card"><button class="btn danger-ghost block" data-erase>Erase journal from this device</button></section>` : ''}
+    <p class="muted small center mt">Supplemental · v1.0</p>`;
+
+  const on = (sel, fn) => view.querySelectorAll(sel).forEach((el) => el.addEventListener('click', fn));
+  on('[data-setup]', () => nav.startSetup());
+  on('[data-lock]', () => nav.lock());
+  on('[data-more]', () => { showAllAttempts = !showAllAttempts; renderSettings(view); });
+  on('[data-clear-log]', async () => {
+    if (await confirmSheet({ title: 'Clear the login log?', confirm: 'Clear' })) {
+      vault.clearAttempts();
+      renderSettings(view);
+    }
+  });
+  on('[data-change-pin]', changePin);
+  on('[data-export]', exportJournal);
+  on('[data-erase]', erase);
+  const bio = view.querySelector('[data-bio]');
+  if (bio) bio.addEventListener('change', () => toggleBio(bio, view));
+  const imp = view.querySelector('[data-import]');
+  if (imp) imp.addEventListener('change', () => importJournal(imp, view));
+}
+
+function shareIcon() {
+  return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>';
+}
+
+async function changePin() {
+  const current = await askPin('Enter your current PIN');
+  if (!current) return;
+  if (!(await vault.verifyPin(current))) {
+    vault.logAttempt(false, 'PIN change');
+    toast('That PIN is not right');
+    return;
+  }
+  const next = await nav.askNewPin('Choose a new 6-digit PIN');
+  if (!next) return;
+  await vault.changePin(state.session, next);
+  vault.logAttempt(true, 'PIN changed');
+  toast('PIN changed');
+  nav.refresh();
+}
+
+async function toggleBio(input, view) {
+  if (!input.checked) {
+    vault.disableBio();
+    toast('Face ID unlock turned off');
+    return renderSettings(view);
+  }
+  input.checked = false;
+  if (!(await vault.bioSupported())) {
+    toast('Face ID is not available here');
+    return;
+  }
+  const ok = await confirmSheet({
+    title: 'Turn on Face ID unlock?',
+    body: 'Your PIN keeps working. Heads up: if Face ID fails, iPhone can offer your phone passcode instead, so anyone who knows your phone passcode could open Supplemental this way.',
+    confirm: 'Turn on Face ID',
+  });
+  if (!ok) return;
+  try {
+    await vault.enrollBio(state.session);
+    toast('Face ID unlock is on');
+  } catch (e) {
+    console.error(e);
+    toast(e.name === 'NotAllowedError' ? 'Face ID setup cancelled' : e.message);
+  }
+  renderSettings(view);
+}
+
+async function exportJournal() {
+  const text = vault.exportBackup();
+  const name = `supplemental-${todayISO()}.supplemental`;
+  const file = new File([text], name, { type: 'application/json' });
+  try {
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: 'Supplemental backup' });
+      return;
+    }
+  } catch (e) {
+    if (e.name === 'AbortError') return;
+  }
+  const url = URL.createObjectURL(file);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
+async function importJournal(input, view) {
+  const f = input.files && input.files[0];
+  input.value = '';
+  if (!f) return;
+  let record;
+  try {
+    record = vault.parseBackup(await f.text());
+  } catch (e) {
+    toast(e.message || 'Could not read that file');
+    return;
+  }
+  const pin = await askPin('Enter the backup\'s PIN', 'The PIN you had when the backup was made.');
+  if (!pin) return;
+  let data;
+  try {
+    data = await vault.openBackup(record, pin);
+  } catch {
+    vault.logAttempt(false, 'Backup PIN');
+    toast('Wrong PIN for that backup');
+    return;
+  }
+  const days = Object.keys(data.days || {}).length;
+  const ok = await confirmSheet({
+    title: 'Replace your journal?',
+    body: `The backup${record.exportedAt ? ` from ${fmtDate(new Date(record.exportedAt).toISOString().slice(0, 10))}` : ''} has ${days} days, ${(data.issues || []).length} issues and ${(data.goals || []).length} goals. It will replace everything here. Your current PIN stays the same.`,
+    confirm: 'Replace',
+    danger: true,
+  });
+  if (!ok || !state.data) return;
+  delete data.demo;
+  state.data = data;
+  await persist();
+  toast('Journal imported');
+  renderSettings(view);
+}
+
+async function erase() {
+  const ok = await confirmSheet({
+    title: 'Erase your journal?',
+    body: 'Every day, issue and goal on this device will be deleted. This cannot be undone. Export a backup first if you might want it.',
+    confirm: 'Erase everything',
+    danger: true,
+  });
+  if (!ok) return;
+  const pin = await askPin('Enter your PIN to erase');
+  if (!pin || !(await vault.verifyPin(pin))) {
+    if (pin) toast('That PIN is not right');
+    return;
+  }
+  vault.eraseEverything();
+  location.hash = '#home';
+  location.reload();
+}
