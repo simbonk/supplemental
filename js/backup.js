@@ -4,21 +4,22 @@ import * as vault from './vault.js';
 import { state, persist } from './state.js';
 import { todayISO, addDays, fmtDate } from './model.js';
 import { esc, toast } from './ui.js';
+import { reminderPrefs } from './reminders.js';
 
-const EVERY_DAYS = 30;
 const SNOOZE_DAYS = 7;
 
 export function lastBackup(data) {
   return data.backup?.lastAt || null; // YYYY-MM-DD
 }
 
-// Due a month after the last backup, or once a week of days is logged if there has never been one.
+// Due the chosen number of days after the last backup, or once a week of days is logged if there has never been one.
 export function backupDue(data) {
-  if (state.mode !== 'real') return false;
+  const every = reminderPrefs(data).backup;
+  if (state.mode !== 'real' || every === 'off') return false;
   const today = todayISO();
   const b = data.backup || {};
   if (b.snoozeUntil && b.snoozeUntil > today) return false;
-  if (b.lastAt) return addDays(b.lastAt, EVERY_DAYS) <= today;
+  if (b.lastAt) return addDays(b.lastAt, Number(every)) <= today;
   return Object.keys(data.days).length >= 7;
 }
 

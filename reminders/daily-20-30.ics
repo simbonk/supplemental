@@ -1,0 +1,21 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Supplemental//Daily reminder//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:supplemental-daily-2030@supplemental-nine.vercel.app
+DTSTAMP:20261017T000000Z
+DTSTART:20261018T203000
+DURATION:PT5M
+RRULE:FREQ=DAILY
+SUMMARY:Supplemental
+DESCRIPTION:How was today? Take a minute to log it.
+URL:https://supplemental-nine.vercel.app/#new
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:How was today?
+TRIGGER:PT0M
+END:VALARM
+END:VEVENT
+END:VCALENDAR

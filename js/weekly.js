@@ -10,6 +10,7 @@ import {
 } from './model.js';
 import { esc, openSheet, haptic, celebrate } from './ui.js';
 import { openEditor } from './items.js';
+import { reminderPrefs } from './reminders.js';
 
 // Issues ask which way things moved; goals ask how much progress was made.
 const CHECKINS = {
@@ -29,9 +30,16 @@ function hasContent(data) {
   return data.issues.length || data.goals.length || Object.keys(data.days).length;
 }
 
+// Every other week counts from a fixed Monday so the rhythm doesn't drift.
+function onCadence(cadence) {
+  if (cadence === 'off') return false;
+  if (cadence === 'biweekly') return Math.round((parseISO(weekId()) - parseISO('2024-01-01')) / (7 * 86400000)) % 2 === 0;
+  return true;
+}
+
 export function shouldShowWeekly(data) {
   // Demo data skips the banner to keep Home uncluttered; Settings can still open it.
-  return state.mode !== 'demo' && hasContent(data) && (data.weekly?.dismissed !== weekId());
+  return state.mode !== 'demo' && hasContent(data) && onCadence(reminderPrefs(data).weekly) && (data.weekly?.dismissed !== weekId());
 }
 
 // The issue's rank in the newest saved day from at least a week ago.

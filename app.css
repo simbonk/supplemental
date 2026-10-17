@@ -565,3 +565,14 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 }
 .backup-nag-text { flex: 1; min-width: 0; }
 .backup-nag-btns { display: flex; gap: 8px; margin-top: 10px; }
+
+/* Reminders */
+.reminders { padding: 0; }
+.rem-block { padding: 14px 16px; }
+.rem-block + .rem-block { border-top: 1px solid var(--line); }
+.rem-block p { margin: 2px 0 10px; }
+.rem-block .segmented.wide { margin-bottom: 4px; }
+.rem-daily { display: flex; gap: 8px; }
+.rem-daily select { flex: 1; min-width: 0; }
+.rem-daily .btn { flex: none; text-decoration: none; display: inline-flex; align-items: center; }
+.list-card.flush { margin: 8px -16px -14px; border-top: 1px solid var(--line); }

@@ -4,6 +4,7 @@ import { todayISO, fmtDate } from './model.js';
 import { esc, toast, confirmSheet, askPin } from './ui.js';
 import { openWeeklySheet, reopenWeekly } from './weekly.js';
 import { exportJournal, lastBackup } from './backup.js';
+import { reminderPrefs, WEEKLY_CADENCES, BACKUP_CADENCES, DAILY_TIMES, dailyIcsUrl, fmtTime } from './reminders.js';
 import { THEMES, APPEARANCES, currentTheme, currentAppearance, setTheme, setAppearance, scaleFor, isDark } from './themes.js';
 
 let showAllAttempts = false;
@@ -15,6 +16,7 @@ export function renderSettings(view) {
   const weekAgo = Date.now() - 7 * 86400000;
   const failedWeek = all.filter((a) => !a.ok && a.t > weekAgo).length;
   const bioOn = vault.bioEnrolled();
+  const prefs = reminderPrefs(state.data);
 
   view.innerHTML = `
     <header class="page-head"><div><h1>Settings</h1><p class="muted">${real ? 'Your journal is encrypted on this device' : 'Demo mode'}</p></div></header>
@@ -78,10 +80,30 @@ export function renderSettings(view) {
         : `<p class="small">This is a year of sample data. When you set your PIN, the demo PIN starts as all zeros of the same length (for example 0000 for a 4-digit PIN), and you can change it here.</p>`}
     </section>
 
-    <h3 class="section-label">Weekly review</h3>
-    <section class="card list-card">
-      <button class="row-btn" data-weekly><span>Open this week's review<span class="muted small block">Top 3 issues, top goal, and how they're going</span></span><span class="chev">›</span></button>
-      <button class="row-btn" data-weekly-home><span>Show it on Home again</span><span class="chev">›</span></button>
+    <h3 class="section-label">Reminders</h3>
+    <section class="card reminders">
+      <div class="rem-block">
+        <strong>Daily check-in</strong>
+        <p class="muted small">Adds a repeating event with an alert to your phone's Calendar. To stop it, delete the event in Calendar.</p>
+        <div class="rem-daily">
+          <select data-daily-time aria-label="Reminder time">${DAILY_TIMES.map((t) => `<option value="${t}" ${t === prefs.dailyAt ? 'selected' : ''}>${esc(fmtTime(t))}</option>`).join('')}</select>
+          <a class="btn primary" data-daily-add href="${dailyIcsUrl(prefs.dailyAt)}" target="_blank" rel="noopener">Add to Calendar</a>
+        </div>
+      </div>
+      <div class="rem-block">
+        <strong>Weekly review</strong>
+        <p class="muted small">Top 3 issues and top goal, on Home at the start of the week.</p>
+        <div class="segmented wide" data-cadence="weekly">${WEEKLY_CADENCES.map(([v, l]) => `<button data-v="${v}" class="${prefs.weekly === v ? 'on' : ''}">${l}</button>`).join('')}</div>
+        <div class="list-card flush">
+          <button class="row-btn" data-weekly><span>Open this week's review</span><span class="chev">›</span></button>
+          <button class="row-btn" data-weekly-home><span>Show it on Home again</span><span class="chev">›</span></button>
+        </div>
+      </div>
+      <div class="rem-block">
+        <strong>Backup reminder</strong>
+        <p class="muted small">How long after your last backup to nudge you on Home.</p>
+        <div class="segmented wide" data-cadence="backup">${BACKUP_CADENCES.map(([v, l]) => `<button data-v="${v}" class="${prefs.backup === v ? 'on' : ''}">${l}</button>`).join('')}</div>
+      </div>
     </section>
 
     <h3 class="section-label">Help</h3>
@@ -132,6 +154,18 @@ export function renderSettings(view) {
   on('[data-export]', async () => { if (await exportJournal()) renderSettings(view); });
   on('[data-erase]', erase);
   on('[data-demo-pin]', changeDemoPin);
+  view.querySelector('[data-daily-time]')?.addEventListener('change', async (e) => {
+    state.data.reminders = { ...reminderPrefs(state.data), dailyAt: e.target.value };
+    view.querySelector('[data-daily-add]').href = dailyIcsUrl(e.target.value);
+    await persist();
+  });
+  view.querySelectorAll('[data-cadence]').forEach((seg) => seg.addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-v]');
+    if (!b) return;
+    state.data.reminders = { ...reminderPrefs(state.data), [seg.dataset.cadence]: b.dataset.v };
+    seg.querySelectorAll('[data-v]').forEach((x) => x.classList.toggle('on', x === b));
+    await persist();
+  }));
   on('[data-weekly]', () => openWeeklySheet());
   on('[data-weekly-home]', () => reopenWeekly());
   on('[data-install-done]', () => {
