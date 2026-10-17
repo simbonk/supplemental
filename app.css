@@ -591,3 +591,9 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .type-confirm { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
 .type-confirm input { width: 100%; }
 .btn:disabled { opacity: .4; }
+
+/* Storage meter */
+.storage p { margin: 8px 0 0; }
+.storage p + p { margin-top: 2px; }
+.storage-bar { height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+.storage-bar i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--s3), var(--s7)); }

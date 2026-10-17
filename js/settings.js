@@ -88,6 +88,7 @@ export function renderSettings(view) {
         <p class="small muted">Your journal never leaves this phone. There's no account, no server and no tracking. Everything is encrypted with your PIN before it's saved, so even someone who copied the app's files couldn't read them. Backups you export are encrypted the same way.</p>
       </div>
     </section>
+    ${real ? storageHTML() : ''}
     ${real ? `<h3 class="section-label">Security</h3>
     <section class="card list-card">
       <button class="row-btn" data-change-pin><span>Change PIN</span><span class="chev">›</span></button>
@@ -222,6 +223,30 @@ export function renderSettings(view) {
 }
 
 // Hidden once marked done, or when already running from the Home Screen.
+// Safari allows about 5 MB per site, counted as 2 bytes per character.
+const STORAGE_BUDGET = 2.5e6;
+
+function storageHTML() {
+  let used = 0;
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k.startsWith('supplemental')) used += k.length + (localStorage.getItem(k) || '').length;
+    }
+  } catch { /* storage unavailable */ }
+  const days = Object.keys(state.data.days).length;
+  // Until there's a couple of weeks of history, assume about 600 characters a day (a typical encrypted entry).
+  const perDay = days >= 14 ? used / days : 600;
+  const yearsLeft = Math.max(0, (STORAGE_BUDGET - used) / perDay / 365);
+  const pct = Math.min(100, (used / STORAGE_BUDGET) * 100);
+  return `<h3 class="section-label">Storage</h3>
+    <section class="card storage">
+      <div class="storage-bar"><i style="width:${Math.max(pct, 1).toFixed(1)}%"></i></div>
+      <p class="small"><strong>${pct < 1 ? 'Less than 1%' : `${Math.round(pct)}%`} used</strong> · about ${yearsLeft >= 20 ? '20+' : Math.floor(yearsLeft)} years of daily entries left</p>
+      <p class="small muted">${(used / 1000).toFixed(0)} KB of roughly 5 MB this phone gives the app. Long notes use it faster.</p>
+    </section>`;
+}
+
 const isAndroid = /Android/i.test(navigator.userAgent);
 
 // Chrome on Android offers its own install prompt; keep it for the tip's button.
