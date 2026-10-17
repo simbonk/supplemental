@@ -470,3 +470,17 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .theme-strip { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; }
 .theme-strip i { height: 16px; border-radius: 4px; display: block; }
 .theme-check { width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-size: 12px; display: grid; place-items: center; }
+
+.celebrate-pop {
+  position: fixed; z-index: 301; pointer-events: none; transform: translate(-50%, -50%) scale(.7); opacity: 0;
+  background: var(--success); color: #fff; font-weight: 700; font-size: 14px; padding: 6px 12px; border-radius: 999px;
+  transition: transform .3s cubic-bezier(.2, 1.4, .4, 1), opacity .3s; white-space: nowrap;
+}
+.celebrate-pop.show { transform: translate(-50%, -160%) scale(1); opacity: 1; }
+
+/* Board drag and drop */
+.drag-ghost { position: fixed; z-index: 250; pointer-events: none; margin: 0; transform: rotate(2deg) scale(1.03); box-shadow: 0 18px 40px rgba(20, 10, 40, .3); opacity: .96; }
+.drag-source { opacity: .25; }
+.drop-slot { height: 6px; border-radius: 3px; background: var(--accent); margin: -2px 4px; }
+.board-col.drop-target { box-shadow: inset 0 0 0 2px var(--accent); }
+.board .drag-handle { margin-left: -4px; }

@@ -9,19 +9,19 @@ const NEUTRAL_LIGHT = { bg: '#f6f6f8', surface: '#ffffff', surface2: '#eeeef2', 
 const NEUTRAL_DARK = { bg: '#0d0d10', surface: '#17171b', surface2: '#212127', text: '#f2f2f5', muted: '#9a9aa6', line: '#2a2a31', empty: '#222228' };
 
 export const THEMES = {
-  spectrum: {
-    name: 'Spectrum',
-    blurb: 'The full rainbow. Black through purple, blue, green, red and orange to yellow.',
-    scale: ['#3b0f6e', '#7c3aed', '#2563eb', '#16a34a', '#dc2626', '#ea580c', '#f59e0b', '#facc15'],
-    light: { bg: '#f5f5f8', surface: '#ffffff', surface2: '#ededf2', text: '#15151c', muted: '#6b6b78', line: '#e1e1e8', empty: '#e5e5ec', accent: '#6d28d9', ink: '#ffffff' },
-    dark: { bg: '#0d0d12', surface: '#17171e', surface2: '#212129', text: '#f2f2f6', muted: '#9a9aa8', line: '#2a2a33', empty: '#22222a', accent: '#8b5cf6', ink: '#ffffff' },
-  },
   ember: {
     name: 'Ember',
     blurb: 'Warm and expressive. Bad days glow down to black, good days heat up to gold.',
     scale: ['#2e1065', '#4c1d95', '#6d28d9', '#a23fb0', '#d6517c', '#ee6a52', '#f98c2c', '#fbbf24'],
     light: { bg: '#f6f5f9', surface: '#ffffff', surface2: '#efedf4', text: '#17141f', muted: '#6e6a7c', line: '#e3e0ea', empty: '#e7e4ee', accent: '#6d28d9', ink: '#ffffff' },
     dark: { bg: '#0e0c14', surface: '#18151f', surface2: '#221e2b', text: '#f2f0f7', muted: '#9a95aa', line: '#2c2836', empty: '#24202d', accent: '#8b5cf6', ink: '#ffffff' },
+  },
+  spectrum: {
+    name: 'Spectrum',
+    blurb: 'The full rainbow. Black through purple, blue, green, red and orange to yellow.',
+    scale: ['#3b0f6e', '#7c3aed', '#2563eb', '#16a34a', '#dc2626', '#ea580c', '#f59e0b', '#facc15'],
+    light: { bg: '#f5f5f8', surface: '#ffffff', surface2: '#ededf2', text: '#15151c', muted: '#6b6b78', line: '#e1e1e8', empty: '#e5e5ec', accent: '#6d28d9', ink: '#ffffff' },
+    dark: { bg: '#0d0d12', surface: '#17171e', surface2: '#212129', text: '#f2f2f6', muted: '#9a9aa8', line: '#2a2a33', empty: '#22222a', accent: '#8b5cf6', ink: '#ffffff' },
   },
   slate: {
     name: 'Slate',
@@ -63,7 +63,7 @@ function setPref(key, value) {
   try { localStorage.setItem('supplemental:ui:' + key, value); } catch { /* private mode */ }
 }
 
-export const currentTheme = () => (THEMES[pref('theme', 'spectrum')] ? pref('theme', 'spectrum') : 'spectrum');
+export const currentTheme = () => (THEMES[pref('theme', 'ember')] ? pref('theme', 'ember') : 'ember');
 export const currentAppearance = () => pref('appearance', 'system');
 
 const media = window.matchMedia('(prefers-color-scheme: dark)');

@@ -231,7 +231,8 @@ export function enableDragReorder(list, onDrop) {
 
 // ---- Celebration ----
 
-export function celebrate(text = 'Done!') {
+// Full celebration (confetti + badge), or a small burst at a point with { x, y, small: true }.
+export function celebrate(text = 'Done!', { x = innerWidth / 2, y = innerHeight * 0.45, small = false } = {}) {
   const canvas = document.createElement('canvas');
   canvas.className = 'confetti';
   const dpr = window.devicePixelRatio || 1;
@@ -239,8 +240,13 @@ export function celebrate(text = 'Done!') {
   canvas.height = innerHeight * dpr;
   document.body.appendChild(canvas);
   const badge = document.createElement('div');
-  badge.className = 'celebrate-badge';
-  badge.innerHTML = `<div class="celebrate-check">✓</div><div>${esc(text)}</div>`;
+  badge.className = small ? 'celebrate-pop' : 'celebrate-badge';
+  badge.innerHTML = small ? esc(text) : `<div class="celebrate-check">✓</div><div>${esc(text)}</div>`;
+  if (small) {
+    x = Math.min(Math.max(x, 90), innerWidth - 90);
+    badge.style.left = x + 'px';
+    badge.style.top = y + 'px';
+  }
   document.body.appendChild(badge);
   requestAnimationFrame(() => badge.classList.add('show'));
 
@@ -248,12 +254,13 @@ export function celebrate(text = 'Done!') {
   ctx.scale(dpr, dpr);
   const css = getComputedStyle(document.documentElement);
   const colors = [5, 6, 7, 8, 9, 10, 10].map((n) => css.getPropertyValue('--s' + n).trim() || '#f2d683');
-  const parts = Array.from({ length: 140 }, () => ({
-    x: innerWidth / 2,
-    y: innerHeight * 0.45,
-    vx: (Math.random() - 0.5) * 14,
-    vy: -Math.random() * 15 - 4,
-    r: Math.random() * 6 + 3,
+  const power = small ? 0.55 : 1;
+  const parts = Array.from({ length: small ? 45 : 140 }, () => ({
+    x,
+    y,
+    vx: (Math.random() - 0.5) * 14 * power,
+    vy: (-Math.random() * 15 - 4) * power,
+    r: Math.random() * (small ? 4 : 6) + 3,
     rot: Math.random() * Math.PI,
     vr: (Math.random() - 0.5) * 0.4,
     c: colors[Math.floor(Math.random() * colors.length)],
@@ -284,5 +291,5 @@ export function celebrate(text = 'Done!') {
     badge.classList.remove('show');
     setTimeout(() => badge.remove(), 400);
   }, 1400);
-  if (navigator.vibrate) navigator.vibrate([10, 40, 10]);
+  if (navigator.vibrate) navigator.vibrate(small ? 12 : [10, 40, 10]);
 }

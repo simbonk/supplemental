@@ -163,10 +163,110 @@ function renderBoard(body, kind) {
     if (key === CFG[kind].doneKey) items = items.sort((a, b) => (b.doneAt || '').localeCompare(a.doneAt || ''));
     return `<section class="board-col">
       <h3 class="board-head"><span class="status-dot s-${key}"></span>${esc(label)}<span class="count">${items.length}</span></h3>
-      <div class="board-cards">${items.length ? items.map((it) => cardHTML(kind, it, { rank: openRank.get(it.id), board: true })).join('') : '<div class="empty small">Nothing here</div>'}</div>
+      <div class="board-cards" data-status="${key}">${items.length ? items.map((it) => cardHTML(kind, it, { rank: openRank.get(it.id), board: true, draggable: true })).join('') : '<div class="empty small">Nothing here</div>'}</div>
     </section>`;
   }).join('')}</div>
-  <p class="hint">Swipe sideways for more columns.</p>`;
+  <p class="hint">Drag a card by its handle to reorder it or move it to another column. Swipe sideways for more columns.</p>`;
+  enableBoardDrag(body, kind);
+}
+
+// Drag a card anywhere on the board: up and down within a column changes its
+// priority, across columns changes its status. Moving forward gets a small cheer.
+function enableBoardDrag(body, kind) {
+  const board = body.querySelector('.board');
+  board.addEventListener('pointerdown', (e) => {
+    const handle = e.target.closest('.drag-handle');
+    if (!handle) return;
+    const card = handle.closest('[data-id]');
+    e.preventDefault();
+    const rect = card.getBoundingClientRect();
+    const dx = e.clientX - rect.left;
+    const dy = e.clientY - rect.top;
+    const ghost = card.cloneNode(true);
+    ghost.classList.add('drag-ghost');
+    ghost.style.width = rect.width + 'px';
+    document.body.appendChild(ghost);
+    card.classList.add('drag-source');
+    const slot = document.createElement('div');
+    slot.className = 'drop-slot';
+    let target = null;
+    let before = null;
+    let scrollTimer = null;
+    haptic();
+
+    const place = (x, y) => {
+      ghost.style.left = x - dx + 'px';
+      ghost.style.top = y - dy + 'px';
+      ghost.style.display = 'none';
+      const under = document.elementFromPoint(x, y);
+      ghost.style.display = '';
+      const col = under && under.closest('.board-col');
+      board.querySelectorAll('.board-col').forEach((c) => c.classList.toggle('drop-target', c === col));
+      if (!col) return;
+      target = col.querySelector('.board-cards');
+      const cards = [...target.querySelectorAll(':scope > [data-id]')].filter((c) => c !== card);
+      before = cards.find((c) => {
+        const r = c.getBoundingClientRect();
+        return y < r.top + r.height / 2;
+      }) || null;
+      target.insertBefore(slot, before);
+    };
+    const edgeScroll = (x) => {
+      clearInterval(scrollTimer);
+      const r = board.getBoundingClientRect();
+      const dir = x > r.right - 40 ? 1 : x < r.left + 40 ? -1 : 0;
+      if (dir) scrollTimer = setInterval(() => { board.scrollLeft += dir * 12; }, 16);
+    };
+    const move = (ev) => {
+      place(ev.clientX, ev.clientY);
+      edgeScroll(ev.clientX);
+    };
+    const up = async () => {
+      document.removeEventListener('pointermove', move);
+      document.removeEventListener('pointerup', up);
+      document.removeEventListener('pointercancel', up);
+      clearInterval(scrollTimer);
+      const gr = ghost.getBoundingClientRect();
+      ghost.remove();
+      slot.remove();
+      card.classList.remove('drag-source');
+      board.querySelectorAll('.drop-target').forEach((c) => c.classList.remove('drop-target'));
+      if (!target) return;
+      const scroll = board.scrollLeft;
+      await dropCard(kind, card.dataset.id, target.dataset.status, before ? before.dataset.id : null, gr);
+      renderItems(body.closest('.view') || body.parentElement, kind);
+      const fresh = document.querySelector('.board');
+      if (fresh) fresh.scrollLeft = scroll;
+    };
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', up);
+    document.addEventListener('pointercancel', up);
+    place(e.clientX, e.clientY);
+  });
+}
+
+async function dropCard(kind, id, status, beforeId, rect) {
+  const list = listOf(kind);
+  const it = list.find((x) => x.id === id);
+  if (!it) return;
+  const order = CFG[kind].statuses.map(([k]) => k);
+  const from = order.indexOf(it.status);
+  const to = order.indexOf(status);
+  const finished = await setStatus(kind, it, status);
+  // Reposition in the priority order: before the card it was dropped above,
+  // or after the last card already in that column.
+  const rest = list.filter((x) => x.id !== id);
+  let at = beforeId ? rest.findIndex((x) => x.id === beforeId) : -1;
+  if (at < 0) {
+    const lastInCol = rest.map((x) => x.status).lastIndexOf(status);
+    at = lastInCol + 1;
+  }
+  rest.splice(at, 0, it);
+  state.data[kind] = rest;
+  await persist();
+  if (finished) celebrate(CFG[kind].celebrate);
+  else if (to > from) celebrate(`Moved to ${CFG[kind].statuses[to][1]}!`, { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2, small: true });
+  else haptic();
 }
 
 async function setStatus(kind, it, status) {
@@ -197,8 +297,10 @@ async function advance(kind, id, card, rerender) {
   if (celebrated) {
     card.classList.add('completing');
     celebrate(CFG[kind].celebrate);
+  } else {
+    const r = card.getBoundingClientRect();
+    celebrate(`Moved to ${next[1]}!`, { x: r.left + r.width / 2, y: r.top + r.height / 2, small: true });
   }
-  haptic();
   await persist();
   setTimeout(rerender, celebrated ? 650 : 0);
 }
