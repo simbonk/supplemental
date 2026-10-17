@@ -35,6 +35,9 @@
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; background: var(--bg); color: var(--text); }
+/* No double-tap zoom: quick repeated taps (like 11 on the keypad) stay taps. */
+html, body, button, a, input, textarea, select, label { touch-action: manipulation; }
+.key { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 body {
   font: 16px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
