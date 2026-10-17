@@ -125,7 +125,7 @@ body.privacy #app { filter: blur(24px); }
 .tab-new .plus {
   width: 50px; height: 50px; border-radius: 16px; display: grid; place-items: center;
   font-size: 30px; font-weight: 300; line-height: 1; color: #fff;
-  background: linear-gradient(135deg, var(--s4), var(--s7));
+  background: linear-gradient(135deg, var(--s3), var(--s7));
   box-shadow: 0 6px 18px color-mix(in srgb, var(--s6) 40%, transparent);
 }
 .tab-new.active .plus { box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--s6); }
@@ -157,7 +157,7 @@ body.privacy #app { filter: blur(24px); }
   background: linear-gradient(120deg, color-mix(in srgb, var(--s4) 14%, transparent), color-mix(in srgb, var(--s8) 16%, transparent));
   border: 1px solid color-mix(in srgb, var(--s6) 30%, transparent);
 }
-.today-plus { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; font-size: 24px; color: #fff; background: linear-gradient(135deg, var(--s4), var(--s7)); }
+.today-plus { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; font-size: 24px; color: #fff; background: linear-gradient(135deg, var(--s3), var(--s7)); }
 .heat-card { padding: 14px 12px 12px; }
 .heat-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 .heat-title { font-weight: 600; font-size: 15px; }
@@ -402,26 +402,29 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 
 @media (prefers-reduced-motion: reduce) {
   *:not(.gold), *:not(.gold)::before, *:not(.gold)::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
-  .gold, .gold::after { animation-duration: 5s !important; }
+  .gold, .gold::after { animation-duration: 7s !important; }
 }
 
 /* ---------- Round two: score ends, sheet close, keypad ok, themes ---------- */
 .gold {
-  position: relative; overflow: hidden;
-  background: linear-gradient(135deg, #d9ae48 0%, #f6e2a0 45%, #fff8e0 55%, #d4a640 100%) !important;
-  animation: gold-glow 2.6s ease-in-out infinite;
+  background: linear-gradient(120deg, #dcb453 0%, #f3dd98 35%, #fff8df 50%, #f3dd98 65%, #dcb453 100%) !important;
+  background-size: 300% 100% !important;
+  animation: gold-soft 4.5s ease-in-out infinite alternate;
   animation-delay: var(--d, 0s);
+  box-shadow: 0 0 5px rgba(242, 214, 131, .4);
 }
-.gold::after {
+@keyframes gold-soft { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
+/* Big tiles (a day's score) also get a light sweep and glow. */
+.gold.big { position: relative; overflow: hidden; animation: gold-soft 4.5s ease-in-out infinite alternate, gold-glow 2.6s ease-in-out infinite; }
+.gold.big::after {
   content: ""; position: absolute; inset: -40% -60%; pointer-events: none;
-  background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, .95) 50%, transparent 62%);
-  animation: gold-sweep 2.6s ease-in-out infinite;
-  animation-delay: var(--d, 0s);
+  background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, .85) 50%, transparent 62%);
+  animation: gold-sweep 3.2s ease-in-out infinite;
 }
-@keyframes gold-sweep { 0%, 35% { transform: translateX(-75%); } 100% { transform: translateX(75%); } }
+@keyframes gold-sweep { 0%, 45% { transform: translateX(-75%); } 100% { transform: translateX(75%); } }
 @keyframes gold-glow {
-  0%, 100% { box-shadow: 0 0 4px rgba(242, 214, 131, .45); }
-  50% { box-shadow: 0 0 14px 2px rgba(255, 224, 140, .95); }
+  0%, 100% { box-shadow: 0 0 6px rgba(242, 214, 131, .45); }
+  50% { box-shadow: 0 0 18px 2px rgba(255, 224, 140, .9); }
 }
 :root[data-scheme="dark"] .black { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .16); }
 .stat-sw { display: inline-block; width: 14px; height: 14px; border-radius: 4px; margin-right: 7px; vertical-align: 1px; }

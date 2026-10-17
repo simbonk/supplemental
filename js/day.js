@@ -171,7 +171,7 @@ export function openDay(date) {
         <button class="icon-btn" data-goto="${next || ''}" ${next ? '' : 'disabled'} aria-label="Next entry">›</button>
       </div>
       <div class="day-score" style="--c:${SCORE_COLORS[entry.score]}">
-        <div class="day-score-sq ${scoreClass(entry.score)}">${entry.score}</div>
+        <div class="day-score-sq big ${scoreClass(entry.score)}">${entry.score}</div>
         <div><div class="day-score-word">${esc(SCORE_LABELS[entry.score])}</div><div class="muted small">${entry.score} out of 10</div></div>
       </div>
       ${entry.note ? `<p class="day-note">${esc(entry.note).replace(/\n/g, '<br>')}</p>` : '<p class="muted">No notes.</p>'}

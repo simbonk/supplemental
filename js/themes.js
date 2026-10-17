@@ -9,6 +9,13 @@ const NEUTRAL_LIGHT = { bg: '#f6f6f8', surface: '#ffffff', surface2: '#eeeef2', 
 const NEUTRAL_DARK = { bg: '#0d0d10', surface: '#17171b', surface2: '#212127', text: '#f2f2f5', muted: '#9a9aa6', line: '#2a2a31', empty: '#222228' };
 
 export const THEMES = {
+  spectrum: {
+    name: 'Spectrum',
+    blurb: 'The full rainbow. Black through purple, blue, green, red and orange to yellow.',
+    scale: ['#3b0f6e', '#7c3aed', '#2563eb', '#16a34a', '#dc2626', '#ea580c', '#f59e0b', '#facc15'],
+    light: { bg: '#f5f5f8', surface: '#ffffff', surface2: '#ededf2', text: '#15151c', muted: '#6b6b78', line: '#e1e1e8', empty: '#e5e5ec', accent: '#6d28d9', ink: '#ffffff' },
+    dark: { bg: '#0d0d12', surface: '#17171e', surface2: '#212129', text: '#f2f2f6', muted: '#9a9aa8', line: '#2a2a33', empty: '#22222a', accent: '#8b5cf6', ink: '#ffffff' },
+  },
   ember: {
     name: 'Ember',
     blurb: 'Warm and expressive. Bad days glow down to black, good days heat up to gold.',
@@ -56,7 +63,7 @@ function setPref(key, value) {
   try { localStorage.setItem('supplemental:ui:' + key, value); } catch { /* private mode */ }
 }
 
-export const currentTheme = () => (THEMES[pref('theme', 'ember')] ? pref('theme', 'ember') : 'ember');
+export const currentTheme = () => (THEMES[pref('theme', 'spectrum')] ? pref('theme', 'spectrum') : 'spectrum');
 export const currentAppearance = () => pref('appearance', 'system');
 
 const media = window.matchMedia('(prefers-color-scheme: dark)');
