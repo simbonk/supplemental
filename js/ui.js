@@ -15,6 +15,33 @@ export function haptic() {
 // ---- Bottom sheet ----
 
 const openSheets = [];
+let lockedScrollY = 0;
+
+// Keep sheets sized to the part of the screen not covered by the keyboard.
+function trackViewport() {
+  const vv = window.visualViewport;
+  const root = document.documentElement;
+  root.style.setProperty('--vv-h', (vv ? vv.height : innerHeight) + 'px');
+  root.style.setProperty('--vv-top', (vv ? vv.offsetTop : 0) + 'px');
+}
+if (window.visualViewport) {
+  visualViewport.addEventListener('resize', trackViewport);
+  visualViewport.addEventListener('scroll', trackViewport);
+}
+window.addEventListener('resize', trackViewport);
+trackViewport();
+
+function lockPage() {
+  lockedScrollY = window.scrollY;
+  document.body.style.top = `-${lockedScrollY}px`;
+  document.body.classList.add('sheet-open');
+}
+
+function unlockPage() {
+  document.body.classList.remove('sheet-open');
+  document.body.style.top = '';
+  window.scrollTo(0, lockedScrollY);
+}
 
 export function openSheet(html, { onClose, tall = false } = {}) {
   const wrap = document.createElement('div');
@@ -27,8 +54,8 @@ export function openSheet(html, { onClose, tall = false } = {}) {
       </button>
       <div class="sheet-body">${html}</div>
     </div>`;
+  if (!document.body.classList.contains('sheet-open')) lockPage();
   document.body.appendChild(wrap);
-  document.body.classList.add('sheet-open');
   requestAnimationFrame(() => wrap.classList.add('show'));
   let closed = false;
   const close = () => {
@@ -39,7 +66,7 @@ export function openSheet(html, { onClose, tall = false } = {}) {
     if (i >= 0) openSheets.splice(i, 1);
     setTimeout(() => {
       wrap.remove();
-      if (!openSheets.length) document.body.classList.remove('sheet-open');
+      if (!openSheets.length && !document.querySelector('.sheet-wrap')) unlockPage();
     }, 260);
     onClose && onClose();
   };

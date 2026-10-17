@@ -42,7 +42,7 @@ body {
   min-height: 100dvh;
   overscroll-behavior-y: none;
 }
-body.sheet-open { overflow: hidden; }
+body.sheet-open { overflow: hidden; position: fixed; left: 0; right: 0; }
 button, input, textarea, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
 a { color: inherit; text-decoration: none; }
@@ -366,16 +366,24 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .prose p { margin: 0 0 10px; }
 
 /* ---------- Sheet ---------- */
-.sheet-wrap { position: fixed; inset: 0; z-index: 100; }
+/* The wrap tracks the visual viewport, so the on-screen keyboard never pushes the
+   top of a sheet out of reach. Only the body scrolls; the grabber and X stay put. */
+.sheet-wrap { position: fixed; left: 0; right: 0; top: var(--vv-top, 0px); height: var(--vv-h, 100dvh); z-index: 100; }
 .sheet-backdrop { position: absolute; inset: 0; background: rgba(10, 5, 20, .45); opacity: 0; transition: opacity .25s; }
 .sheet {
-  position: absolute; left: 0; right: 0; bottom: 0; max-height: 88dvh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  position: absolute; left: 0; right: 0; bottom: 0; max-height: calc(var(--vv-h, 100dvh) * .9);
+  display: flex; flex-direction: column; overflow: hidden;
   background: var(--bg); border-radius: 22px 22px 0 0;
-  padding: 8px 18px calc(var(--safe-bottom) + 20px);
   transform: translateY(100%); transition: transform .28s cubic-bezier(.2, .9, .3, 1);
-  max-width: 640px; margin: 0 auto; overscroll-behavior: contain;
+  max-width: 640px; margin: 0 auto;
 }
-.sheet.tall { height: 92dvh; max-height: 92dvh; }
+.sheet .sheet-grabber { flex: none; margin-top: 8px; }
+.sheet-body {
+  flex: 0 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+  padding: 0 18px calc(var(--safe-bottom) + 20px);
+}
+.sheet.tall { height: calc(var(--vv-h, 100dvh) * .92); max-height: calc(var(--vv-h, 100dvh) * .92); }
+.sheet.tall .sheet-body { flex: 1 1 auto; }
 .sheet-wrap.show .sheet { transform: translateY(0); }
 .sheet-wrap.show .sheet-backdrop { opacity: 1; }
 .sheet-grabber { width: 38px; height: 5px; border-radius: 3px; background: var(--line); margin: 0 auto 12px; }
