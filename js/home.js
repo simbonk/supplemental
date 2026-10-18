@@ -4,6 +4,7 @@ import { esc, openSheet } from './ui.js';
 import { openDay } from './day.js';
 import { shouldShowWeekly, weeklyHTML, bindWeekly } from './weekly.js';
 import { backupDue, backupNagHTML, bindBackupNag } from './backup.js';
+import { reviewLinkHTML } from './review.js';
 
 let monthOffset = 0; // 0 = the 12 months ending this month
 
@@ -52,6 +53,8 @@ export function renderHome(view) {
         <span>Amazing</span>
       </div>
     </section>
+
+    ${reviewLinkHTML(data)}
 
     <section class="home-pair">
       ${topIssue ? `<a class="mini-card" href="#issues">

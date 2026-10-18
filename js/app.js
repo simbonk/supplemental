@@ -7,6 +7,7 @@ import { renderHome } from './home.js';
 import { renderNewDay } from './day.js';
 import { renderItems } from './items.js';
 import { renderSettings } from './settings.js';
+import { renderReview, leaveReview } from './review.js';
 import { shouldTour, startTour } from './tour.js';
 import { applyTheme, setKeepLight, inFirstDay } from './themes.js';
 
@@ -246,10 +247,12 @@ function route() {
   const view = $('#view');
   if (!view) return;
   const [name, arg] = (location.hash.slice(1) || 'home').split('/');
-  document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t.dataset.tab === (name === 'review' ? 'home' : name)));
   view.scrollTop = 0;
   window.scrollTo(0, 0);
-  if (name === 'new') renderNewDay(view, arg);
+  if (name !== 'review') leaveReview();
+  if (name === 'review') renderReview(view, arg);
+  else if (name === 'new') renderNewDay(view, arg);
   else if (name === 'issues') renderItems(view, 'issues');
   else if (name === 'goals') renderItems(view, 'goals');
   else if (name === 'settings') renderSettings(view);

@@ -80,7 +80,7 @@ export function makeDemoData() {
     {
       id: uid(), title: 'Haven\'t called Dad in months', area: 'Family', status: 'resolved',
       startedAt: addDays(today, -300), feeling: 'Guilty', intensity: 4, kind: 'solvable', talked: 'talking',
-      notes: {}, createdAt: Date.now(), doneAt: addDays(today, -45),
+      notes: {}, createdAt: Date.now(), doneAt: addDays(today, -6),
     },
   ];
 
@@ -105,7 +105,7 @@ export function makeDemoData() {
     },
     {
       id: uid(), title: 'Family trip to the coast', area: 'Family', status: 'done', addedAt: addDays(today, -160),
-      doneAt: addDays(today, -70), notes: { why: 'Everyone together, no screens.' },
+      doneAt: addDays(today, -3), notes: { why: 'Everyone together, no screens.' },
     },
   ];
 
@@ -137,7 +137,7 @@ export function makeDemoData() {
       date,
       score,
       note,
-      thankful: rand() < 0.3 ? THANKFUL[Math.floor(rand() * THANKFUL.length)] : '',
+      thankful: rand() < 0.5 ? THANKFUL[Math.floor(rand() * THANKFUL.length)] : '',
       issues: issuesThen.map((x, idx) => ({
         id: x.id, title: x.title, rank: idx + 1, total: issuesThen.length, feeling: x.feeling, intensity: x.intensity, status: x.status,
       })),
