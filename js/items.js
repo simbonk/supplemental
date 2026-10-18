@@ -167,7 +167,7 @@ function renderBoard(body, kind) {
       <div class="board-cards" data-status="${key}">${items.length ? items.map((it) => cardHTML(kind, it, { rank: openRank.get(it.id), board: true, draggable: true })).join('') : '<div class="empty small">Nothing here</div>'}</div>
     </section>`;
   }).join('')}</div>
-  <p class="hint">Drag a card by its handle to reorder it or move it to another column. This doesn't change the ranking in List. Swipe sideways for more columns.</p>`;
+  <p class="hint">Drag a card by its handle to reorder it or move it to another column. This doesn't change the ranking in List.<span class="swipe-hint"> Swipe sideways for more columns.</span></p>`;
   enableBoardDrag(body, kind);
 }
 
