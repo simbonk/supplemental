@@ -42,6 +42,18 @@ const THANKFUL = [
   'The kids\' laughter at dinner', 'A warm bed', 'Grandpa\'s old watch', 'Sunshine on the walk home',
 ];
 
+// For the month the review opens on: a note on every day, short enough to fit a petal.
+const MONTH_THANKS = [
+  'Coffee in bed', 'A long hot shower', 'Her laugh', 'Kids asleep by 8', 'Rain on the roof',
+  'Leftover lasagna', 'A walk at sunset', 'Mum\'s voicemail', 'Clean sheets', 'Friday pizza night',
+  'My running shoes', 'A quiet commute', 'Dad\'s old jokes', 'Fresh bread', 'A text from Sam',
+  'The dog at the door', 'Finishing a book', 'A good cry', 'Pancake Saturday', 'Fall leaves',
+  'Holding hands', 'A day off', 'Soup weather', 'Her note in my bag', 'An early night',
+  'The kids\' drawings', 'A neighbour\'s help', 'Music in the car', 'Sunday slow morning', 'An honest talk',
+];
+// Hard days still get a small mercy.
+const HARD_THANKS = ['A friend checked in', 'Tomorrow is new', 'The kids are okay'];
+
 export function makeDemoData() {
   const rand = seeded(1701);
   const today = todayISO();
@@ -145,5 +157,26 @@ export function makeDemoData() {
       updatedAt: Date.now(),
     };
   }
+  fillReviewMonth(data, today);
   return data;
+}
+
+// Month in review opens on this month (or last month in the first few days),
+// so give that month a full flower: every day logged and thankful, a few black days.
+function fillReviewMonth(data, today) {
+  const start = addDays(today, -(Number(today.slice(8)) - 1));
+  const from = Number(today.slice(8)) <= 5 ? addDays(start, -1).slice(0, 8) + '01' : start;
+  let hard = 0;
+  for (let d = from, i = 0; d <= today; d = addDays(d, 1), i++) {
+    const day = data.days[d];
+    if (!day) continue;
+    const special = /^Goal achieved|^Called Dad/.test(day.note);
+    if (!special && [3, 10, 19].includes(i)) {
+      day.score = 1;
+      day.note = NOTES.low[hard % NOTES.low.length];
+      day.thankful = HARD_THANKS[hard++ % HARD_THANKS.length];
+    } else {
+      day.thankful = MONTH_THANKS[i % MONTH_THANKS.length];
+    }
+  }
 }
