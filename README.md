@@ -2,7 +2,7 @@
 
 A private daily journal that installs on your iPhone Home Screen. Rate each day from 1 to 10, write a line about how it went, and keep a ranked list of the issues weighing on you and the goals you're building toward. After a few months, the year-in-pixels heat map shows patterns you couldn't see day to day.
 
-**Try it:** open [supplemental-nine.vercel.app](https://supplemental-nine.vercel.app) in Safari on an iPhone, tap Share, then **Add to Home Screen**. It opens with demo data so you can look around before setting a PIN.
+**Try it:** open [supplemental.day](https://supplemental.day) in Safari on an iPhone, tap Share, then **Add to Home Screen**. It opens with demo data so you can look around before setting a PIN.
 
 ## What it does
 
