@@ -7,6 +7,7 @@ import { renderHome } from './home.js';
 import { renderNewDay } from './day.js';
 import { renderItems } from './items.js';
 import { renderSettings } from './settings.js';
+import { shouldTour, startTour } from './tour.js';
 import { applyTheme } from './themes.js';
 
 const app = $('#app');
@@ -207,6 +208,8 @@ function showShell() {
   const demoBtn = $('[data-demo-action]', app);
   if (demoBtn) demoBtn.addEventListener('click', () => (state.hasVault ? lock() : startSetup()));
   bindTabbar($('.tabbar', app));
+  // Always open on Home, not wherever the app was when it last locked.
+  history.replaceState(null, '', '#home');
   route();
 }
 
@@ -283,7 +286,10 @@ function boot() {
   applyTheme();
   state.hasVault = vault.hasVault();
   if (state.hasVault) showLock();
-  else enterDemo();
+  else {
+    enterDemo();
+    if (shouldTour()) setTimeout(startTour, 400);
+  }
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 }

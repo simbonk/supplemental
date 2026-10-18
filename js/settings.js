@@ -3,6 +3,7 @@ import { state, nav, persist } from './state.js';
 import { todayISO, fmtDate } from './model.js';
 import { esc, toast, confirmSheet, askPin, openSheet } from './ui.js';
 import { openWeeklySheet, reopenWeekly } from './weekly.js';
+import { startTour } from './tour.js';
 import { exportJournal, lastBackup } from './backup.js';
 import { reminderPrefs, WEEKLY_CADENCES, BACKUP_CADENCES, DAILY_TIMES, dailyIcsUrl, dailyHint, isApple, fmtTime } from './reminders.js';
 import { THEMES, APPEARANCES, currentTheme, currentAppearance, setTheme, setAppearance, scaleFor, isDark } from './themes.js';
@@ -191,6 +192,7 @@ export function renderSettings(view) {
       </details>
     </section>
 
+    <button class="btn ghost block mt" data-tour>Show the walkthrough again</button>
     <p class="muted small center mt">Supplemental · v1.0</p>    </div>
 `;
 
@@ -203,6 +205,7 @@ export function renderSettings(view) {
   });
   const on = (sel, fn) => view.querySelectorAll(sel).forEach((el) => el.addEventListener('click', fn));
   on('[data-setup]', () => nav.startSetup());
+  on('[data-tour]', () => startTour());
   on('[data-lock]', () => nav.lock());
   on('[data-more]', () => { showAllAttempts = !showAllAttempts; renderSettings(view); });
   on('[data-clear-log]', async () => {

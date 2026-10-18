@@ -599,3 +599,18 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .storage p + p { margin-top: 2px; }
 .storage-bar { height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
 .storage-bar i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--s3), var(--s7)); }
+
+/* First-run walkthrough */
+.tour { position: fixed; inset: 0; z-index: 90; }
+.tour-hole { position: fixed; border-radius: 16px; box-shadow: 0 0 0 200vmax rgba(10, 8, 20, .62); transition: all .25s ease; pointer-events: none; }
+.tour-tip { position: fixed; background: var(--surface); color: var(--text); border-radius: 16px; padding: 14px 16px 12px; box-shadow: 0 10px 30px rgba(0,0,0,.3); animation: tour-in .2s ease; }
+.tour-tip strong { display: block; font-size: 17px; margin-bottom: 4px; }
+.tour-tip p { margin: 0 0 12px; font-size: 15px; line-height: 1.4; color: var(--muted); }
+.tour-tip::after { content: ""; position: absolute; left: calc(var(--arrow-x) - 9px); border: 9px solid transparent; }
+.tour-tip.above::after { top: 100%; border-top-color: var(--surface); }
+.tour-tip.below::after { bottom: 100%; border-bottom-color: var(--surface); }
+.tour-tip.floating::after { display: none; }
+.tour-tip.floating[style*="top: 12px"] { margin-top: env(safe-area-inset-top); }
+.tour-btns { display: flex; align-items: center; justify-content: space-between; }
+.tour-right { display: flex; gap: 8px; }
+@keyframes tour-in { from { opacity: 0; transform: translateY(6px); } }
