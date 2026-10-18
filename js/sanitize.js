@@ -100,12 +100,15 @@ export function sanitizeData(raw) {
   if (isObj(raw.reminders)) {
     const r = raw.reminders;
     out.reminders = {
-      weekly: oneOf(r.weekly, WEEKLY_CADENCES, 'weekly'),
+      weekly: oneOf(r.weekly, WEEKLY_CADENCES, 'off'),
       backup: oneOf(r.backup, BACKUP_CADENCES, '30'),
       dailyAt: DAILY_TIMES.includes(r.dailyAt) ? r.dailyAt : '21:00',
     };
   }
-  if (isObj(raw.weekly) && date(raw.weekly.dismissed)) out.weekly = { dismissed: raw.weekly.dismissed };
+  if (isObj(raw.weekly)) {
+    const w = { dismissed: date(raw.weekly.dismissed), pinned: date(raw.weekly.pinned) };
+    out.weekly = Object.fromEntries(Object.entries(w).filter(([, v]) => v));
+  }
   if (raw.demo === true) out.demo = true;
   return out;
 }

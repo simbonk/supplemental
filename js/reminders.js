@@ -6,7 +6,7 @@ export const WEEKLY_CADENCES = [['weekly', 'Every week'], ['biweekly', 'Every 2 
 export const BACKUP_CADENCES = [['14', '2 weeks'], ['30', 'Monthly'], ['90', '3 months'], ['off', 'Off']];
 
 export function reminderPrefs(data) {
-  return { weekly: 'weekly', backup: '30', dailyAt: '21:00', ...(data.reminders || {}) };
+  return { weekly: 'off', backup: '30', dailyAt: '21:00', ...(data.reminders || {}) };
 }
 
 // Half-hour slots, matching the files in reminders/.

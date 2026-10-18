@@ -72,7 +72,7 @@ export function renderSettings(view) {
         <div class="segmented wide" data-cadence="weekly">${WEEKLY_CADENCES.map(([v, l]) => `<button data-v="${v}" class="${prefs.weekly === v ? 'on' : ''}">${l}</button>`).join('')}</div>
         <div class="list-card flush">
           <button class="row-btn" data-weekly><span>Open this week's review</span><span class="chev">›</span></button>
-          <button class="row-btn" data-weekly-home><span>Show it on Home again</span><span class="chev">›</span></button>
+          <button class="row-btn" data-weekly-home><span>Show it on Home this week</span><span class="chev">›</span></button>
         </div>
       </div>
       <div class="rem-block">

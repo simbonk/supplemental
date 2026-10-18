@@ -38,8 +38,11 @@ function onCadence(cadence) {
 }
 
 export function shouldShowWeekly(data) {
-  // Demo data skips the banner to keep Home uncluttered; Settings can still open it.
-  return state.mode !== 'demo' && hasContent(data) && onCadence(reminderPrefs(data).weekly) && (data.weekly?.dismissed !== weekId());
+  if (!hasContent(data)) return false;
+  // Asked for from Settings: show it this week, whatever the cadence (demo included).
+  if (data.weekly?.pinned === weekId()) return true;
+  // Otherwise demo data skips the banner to keep Home uncluttered.
+  return state.mode !== 'demo' && onCadence(reminderPrefs(data).weekly) && (data.weekly?.dismissed !== weekId());
 }
 
 // The issue's rank in the newest saved day from at least a week ago.
@@ -171,7 +174,7 @@ export function bindWeekly(root, refresh) {
       return;
     }
     if (e.target.closest('[data-dismiss]')) {
-      state.data.weekly = { ...(state.data.weekly || {}), dismissed: weekId() };
+      state.data.weekly = { dismissed: weekId() };
       await persist();
       refresh();
     }
@@ -189,7 +192,7 @@ export function openWeeklySheet() {
 }
 
 export function reopenWeekly() {
-  if (state.data.weekly) delete state.data.weekly.dismissed;
+  state.data.weekly = { pinned: weekId() };
   persist();
   nav.go('home');
 }
