@@ -165,7 +165,7 @@ export async function startSetup() {
   await vault.setDemoPin(zeros);
   vault.logAttempt(true, 'PIN set');
   enterReal(session, data);
-  location.hash = '#home';
+  nav.go('home');
   toast('Your journal is ready');
 }
 
@@ -256,10 +256,18 @@ function route() {
   else renderHome(view);
 }
 
+// Switch screens without adding history entries, so iOS's edge swipe-back
+// has nothing to go back to (it used to fire mid-drag on the board).
 nav.go = (hash) => {
-  if (location.hash === '#' + hash) route();
-  else location.hash = '#' + hash;
+  if (location.hash !== '#' + hash) history.replaceState(null, '', '#' + hash);
+  route();
 };
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('a[href^="#"]');
+  if (!a || e.defaultPrevented) return;
+  e.preventDefault();
+  nav.go(a.getAttribute('href').slice(1));
+});
 nav.refresh = route;
 nav.lock = lock;
 nav.startSetup = startSetup;
@@ -269,15 +277,19 @@ window.addEventListener('hashchange', route);
 
 // ---------- Auto-lock: whenever the phone locks or the app goes to the background ----------
 
+// Cover the screen first and synchronously, so the app switcher snapshot
+// has the best chance of catching the cover rather than the journal.
+const cover = () => { document.body.classList.add('privacy'); void document.body.offsetHeight; };
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') {
-    document.body.classList.add('privacy');
+    cover();
     lock();
   } else {
     document.body.classList.remove('privacy');
   }
 });
-window.addEventListener('pagehide', lock);
+window.addEventListener('pagehide', () => { cover(); lock(); });
+document.addEventListener('freeze', () => { cover(); lock(); });
 window.addEventListener('blur', () => {
   if (state.hasVault && state.mode && !state.sharing) document.body.classList.add('privacy');
 });

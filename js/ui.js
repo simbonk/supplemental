@@ -174,12 +174,24 @@ export function bindKeypad(root, onComplete, { exact = 0 } = {}) {
     render();
     if (exact && pin.length === exact) submit();
   };
-  root.addEventListener('click', (e) => {
+  // Register on touch-down, not click: iOS drops or delays clicks on quick
+  // repeated taps (it waits to see if it's a double-tap), which made digits go missing.
+  const hit = (e) => {
     const k = e.target.closest('[data-key]');
+    const btn = k || e.target.closest('[data-del], [data-ok]');
+    if (!btn) return;
+    btn.classList.add('down');
+    setTimeout(() => btn.classList.remove('down'), 140);
     if (k) return press(k.dataset.key);
-    if (e.target.closest('[data-del]')) return press('del');
-    if (e.target.closest('[data-ok]')) submit();
+    if (btn.matches('[data-del]')) return press('del');
+    submit();
+  };
+  root.addEventListener('pointerdown', (e) => {
+    if (e.button > 0) return;
+    hit(e);
   });
+  // Keyboard activation (Enter/Space on a focused key) arrives as a click with no pointer.
+  root.addEventListener('click', (e) => { if (e.detail === 0) hit(e); });
   const onKey = (e) => {
     if (!root.isConnected) return document.removeEventListener('keydown', onKey);
     if (/^\d$/.test(e.key)) press(e.key);

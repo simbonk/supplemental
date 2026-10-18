@@ -470,6 +470,6 @@ async function erase() {
     return;
   }
   vault.eraseEverything();
-  location.hash = '#home';
+  nav.go('home');
   location.reload();
 }
