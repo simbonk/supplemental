@@ -149,7 +149,7 @@ export function renderSettings(view) {
             <li>Everything stays on this phone. There's no account and no server. The website only delivers the app's code; your entries never go to it.</li>
             <li>Entries are encrypted with AES-256-GCM before they're saved. The key comes from your PIN through Argon2id, a deliberately slow, memory-hungry function (64 MB and about half a second per guess).</li>
             <li>The lock screen slows down after 5 wrong tries, and every attempt is logged under Privacy.</li>
-            <li>It locks itself whenever your phone locks or you switch apps, and hides your journal behind a cover in the app switcher.</li>
+            <li>It locks itself whenever your phone locks or you switch apps.</li>
             <li>A demo PIN opens sample data instead, so you're never forced to open the real thing in front of someone.</li>
             <li>Backups can have their own passphrase, protected with an even slower setting.</li>
           </ul>
