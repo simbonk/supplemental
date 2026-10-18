@@ -200,7 +200,7 @@ function showShell() {
           <span>${state.hasVault ? 'Demo data. Changes are not saved.' : 'You are looking at demo data.'}</span>
           <button class="chip-btn" data-demo-action>${state.hasVault ? 'Lock' : 'Set your PIN'}</button>
         </div>` : ''}
-        <div class="app-head"><a href="#home" class="wordmark">Supplemental</a></div>
+        <div class="app-head"><a href="#home" class="wordmark">Supplemental</a><span class="app-tagline">Private journal</span></div>
       </header>
       <main id="view" class="view"></main>
       <nav class="tabbar">

@@ -119,7 +119,8 @@ body.privacy::after {
   background: var(--surface);
   border-bottom: 1px solid var(--line);
 }
-.app-head { display: flex; align-items: flex-end; justify-content: center; height: 50px; padding-bottom: 9px; }
+.app-head { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 56px; padding-bottom: 7px; }
+.app-tagline { font-size: 10px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-top: 1px; }
 .wordmark {
   font-size: 21px; font-weight: 800; letter-spacing: -0.02em; text-decoration: none;
   background: linear-gradient(90deg, var(--s3), var(--s6), var(--s9));
