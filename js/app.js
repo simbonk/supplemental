@@ -8,7 +8,7 @@ import { renderNewDay } from './day.js';
 import { renderItems } from './items.js';
 import { renderSettings } from './settings.js';
 import { shouldTour, startTour } from './tour.js';
-import { applyTheme } from './themes.js';
+import { applyTheme, setKeepLight, inFirstDay } from './themes.js';
 
 const app = $('#app');
 
@@ -28,6 +28,7 @@ const ICON_SVG = `<svg viewBox="0 0 64 64" class="logo" aria-hidden="true">${[0,
 // ---------- Lock screen ----------
 
 function showLock(message = '') {
+  setKeepLight(inFirstDay());
   closeAllSheets();
   document.body.classList.remove('privacy');
   const bio = vault.bioEnrolled();
@@ -122,6 +123,7 @@ function forgotPin() {
 // ---------- Modes ----------
 
 function enterDemo() {
+  setKeepLight(true);
   state.mode = 'demo';
   state.session = null;
   state.data = makeDemoData();
@@ -129,6 +131,7 @@ function enterDemo() {
 }
 
 function enterReal(session, data) {
+  setKeepLight(inFirstDay());
   state.mode = 'real';
   state.session = session;
   state.data = data;

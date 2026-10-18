@@ -6,7 +6,7 @@ import { openWeeklySheet, reopenWeekly } from './weekly.js';
 import { startTour } from './tour.js';
 import { exportJournal, lastBackup } from './backup.js';
 import { reminderPrefs, WEEKLY_CADENCES, BACKUP_CADENCES, DAILY_TIMES, dailyIcsUrl, dailyHint, isApple, fmtTime } from './reminders.js';
-import { THEMES, APPEARANCES, currentTheme, currentAppearance, setTheme, setAppearance, scaleFor, isDark } from './themes.js';
+import { THEMES, APPEARANCES, currentTheme, currentAppearance, setTheme, setAppearance, scaleFor, isDark, lightForNow } from './themes.js';
 
 let showAllAttempts = false;
 const SETTINGS_TABS = [['general', 'General'], ['reminders', 'Reminders'], ['privacy', 'Privacy'], ['help', 'Help']];
@@ -45,6 +45,7 @@ export function renderSettings(view) {
     <h3 class="section-label">Appearance</h3>
     <section class="card">
       <div class="segmented wide" data-appearance>${APPEARANCES.map(([v, l]) => `<button data-v="${v}" class="${currentAppearance() === v ? 'on' : ''}">${l}</button>`).join('')}</div>
+      ${lightForNow() ? `<p class="hint left">${state.mode === 'demo' ? 'The demo stays light. Your journal follows your phone after its first day.' : 'Staying light for your first day. After that, System follows your phone.'} Pick Dark to switch now.</p>` : ''}
       <div class="theme-grid">${Object.entries(THEMES).map(([id, t]) => `
         <button class="theme-opt ${currentTheme() === id ? 'on' : ''}" data-theme="${id}">
           <span class="theme-opt-head">${esc(t.name)}${currentTheme() === id ? '<span class="theme-check">✓</span>' : ''}</span>

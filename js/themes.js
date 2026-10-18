@@ -4,6 +4,7 @@
 
 const BLACK = { light: '#0a0a0c', dark: '#000000' };
 const GOLD = '#f2d683';
+const LIGHT_SHADOW = '0 1px 2px rgba(20, 10, 40, .05), 0 6px 20px rgba(20, 10, 40, .06)';
 
 const NEUTRAL_LIGHT = { bg: '#f6f6f8', surface: '#ffffff', surface2: '#eeeef2', text: '#16161a', muted: '#6b6b76', line: '#e2e2e8', empty: '#e6e6ec' };
 const NEUTRAL_DARK = { bg: '#0d0d10', surface: '#17171b', surface2: '#212127', text: '#f2f2f5', muted: '#9a9aa6', line: '#2a2a31', empty: '#222228' };
@@ -68,9 +69,27 @@ export const currentAppearance = () => pref('appearance', 'system');
 
 const media = window.matchMedia('(prefers-color-scheme: dark)');
 
+// New users and the demo stay light on System, whatever the phone is set to,
+// so the first impression is the bright version. Picking Dark still wins.
+let keepLight = false;
+export function setKeepLight(on) {
+  keepLight = on;
+  applyTheme();
+}
+
+const FIRST_OPEN = 'first-open';
+export function inFirstDay() {
+  let first = Number(pref(FIRST_OPEN, 0));
+  if (!first) { first = Date.now(); setPref(FIRST_OPEN, String(first)); }
+  return Date.now() - first < 86400000;
+}
+
+// True while System would be dark but the app is staying light for now.
+export const lightForNow = () => keepLight && currentAppearance() === 'system' && media.matches;
+
 export function isDark() {
   const a = currentAppearance();
-  return a === 'dark' || (a === 'system' && media.matches);
+  return a === 'dark' || (a === 'system' && media.matches && !keepLight);
 }
 
 export function scaleFor(themeId, dark) {
@@ -93,6 +112,7 @@ export function applyTheme() {
   set('--accent', c.accent);
   set('--accent-ink', c.ink);
   scaleFor(currentTheme(), dark).forEach((col, i) => set(`--s${i + 1}`, col));
+  set('--shadow', dark ? '0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25)' : LIGHT_SHADOW);
   root.style.colorScheme = dark ? 'dark' : 'light';
   root.dataset.scheme = dark ? 'dark' : 'light';
   document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute('content', c.bg));
