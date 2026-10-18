@@ -108,7 +108,7 @@ function drawHeatmap(view) {
       if (entry && scoreClass(entry.score)) cls.push(scoreClass(entry.score));
       const delay = entry && entry.score === 10 ? `;--d:${((d * 7 + months.indexOf(m) * 3) % 10) * 0.26}s` : '';
       const style = entry ? `style="background:${SCORE_COLORS[entry.score]}${delay}"` : '';
-      html += `<button class="${cls.join(' ')}" data-date="${date}" ${style} ${date > today ? 'disabled' : ''} aria-label="${date}${entry ? ', ' + entry.score + ' out of 10' : ''}"></button>`;
+      html += `<button class="${cls.join(' ')}" data-date="${date}" ${style} ${date > today ? 'disabled' : ''} aria-label="${date}${entry ? ', ' + esc(entry.score) + ' out of 10' : ''}"></button>`;
     }
   }
   const grid = view.querySelector('.heat-grid');

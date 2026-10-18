@@ -1,4 +1,4 @@
-// The vault: everything Simon writes lives in one AES-GCM blob in localStorage.
+// The vault: everything you write lives in one AES-GCM blob in localStorage.
 // A random 256-bit data key encrypts the journal; that data key is itself
 // encrypted ("wrapped") by a key derived from the PIN, and optionally by a
 // Face ID passkey's PRF secret. Nothing readable is stored without the PIN.
@@ -233,6 +233,15 @@ export function parseBackup(text) {
   if (record.app !== 'supplemental' || !record.kdf || !record.wrapped || !record.data) {
     throw new Error('That file is not a Supplemental backup');
   }
+  // The file sets its own Argon2 cost, so cap it: a crafted file could otherwise
+  // ask for gigabytes of memory or billions of passes and freeze the phone.
+  const { alg, m, t, p, salt } = record.kdf;
+  const int = (v, lo, hi) => Number.isInteger(v) && v >= lo && v <= hi;
+  const box = (b) => b && typeof b.iv === 'string' && typeof b.ct === 'string' && b.iv.length < 64;
+  if (alg !== 'argon2id' || !int(m, 8192, 262144) || !int(t, 1, 20) || !int(p, 1, 4)
+    || typeof salt !== 'string' || salt.length > 64 || !box(record.wrapped) || !box(record.data)) {
+    throw new Error('That backup file looks damaged');
+  }
   return record;
 }
 
@@ -262,12 +271,12 @@ export async function setDemoPin(pin) {
 export async function isDemoPin(pin) {
   const d = readJSON(KEYS.demo, null);
   if (!d) return false;
-  return d.len === pin.length && (await demoHash(pin, d.salt)) === d.hash;
+  return d.len === pin.length && (await demoHash(pin, String(d.salt))) === d.hash;
 }
 
 export function pinLength() {
   const d = readJSON(KEYS.demo, null);
-  return d ? d.len : 0;
+  return d && Number.isInteger(d.len) && d.len >= 4 && d.len <= 8 ? d.len : 0;
 }
 
 // ---- Login attempts and lockout (plain text: timestamps only, no journal content) ----

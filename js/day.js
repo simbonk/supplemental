@@ -146,10 +146,10 @@ function snapshotList(items, kind, empty) {
   if (!items || !items.length) return `<p class="muted small">${esc(empty)}</p>`;
   return `<ol class="snap-list">${items.map((it, idx) => `
     <li class="snap ${kind}">
-      <span class="snap-rank">${it.rank || idx + 1}${kind === 'issue' && it.total ? `<small>/${it.total}</small>` : ''}</span>
+      <span class="snap-rank">${esc(it.rank || idx + 1)}${kind === 'issue' && it.total ? `<small>/${esc(it.total)}</small>` : ''}</span>
       <span class="snap-title">${esc(it.title)}</span>
       <span class="snap-meta">${kind === 'issue'
-        ? `${feelingEmoji(it.feeling)}${it.intensity ? ` <small>${it.intensity}/10</small>` : ''}`
+        ? `${feelingEmoji(it.feeling)}${it.intensity ? ` <small>${esc(it.intensity)}/10</small>` : ''}`
         : `<small>${esc(statusLabel('goal', it.status))}</small>`}</span>
     </li>`).join('')}</ol>`;
 }
@@ -166,13 +166,13 @@ export function openDay(date) {
   const s = openSheet(`
     <div class="day-detail">
       <div class="day-nav">
-        <button class="icon-btn" data-goto="${prev || ''}" ${prev ? '' : 'disabled'} aria-label="Previous entry">‹</button>
+        <button class="icon-btn" data-goto="${esc(prev || '')}" ${prev ? '' : 'disabled'} aria-label="Previous entry">‹</button>
         <h2 class="sheet-title">${esc(fmtDate(date))}</h2>
-        <button class="icon-btn" data-goto="${next || ''}" ${next ? '' : 'disabled'} aria-label="Next entry">›</button>
+        <button class="icon-btn" data-goto="${esc(next || '')}" ${next ? '' : 'disabled'} aria-label="Next entry">›</button>
       </div>
       <div class="day-score" style="--c:${SCORE_COLORS[entry.score]}">
-        <div class="day-score-sq big ${scoreClass(entry.score)}">${entry.score}</div>
-        <div><div class="day-score-word">${esc(SCORE_LABELS[entry.score])}</div><div class="muted small">${entry.score} out of 10</div></div>
+        <div class="day-score-sq big ${scoreClass(entry.score)}">${esc(entry.score)}</div>
+        <div><div class="day-score-word">${esc(SCORE_LABELS[entry.score])}</div><div class="muted small">${esc(entry.score)} out of 10</div></div>
       </div>
       ${entry.note ? `<p class="day-note">${esc(entry.note).replace(/\n/g, '<br>')}</p>` : '<p class="muted">No notes.</p>'}
       ${entry.thankful ? `<div class="thankful"><span>Thankful for</span>${esc(entry.thankful)}</div>` : ''}

@@ -1,0 +1,47 @@
+name: Bug report
+description: Something isn't working the way it should.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time. **Please don't paste journal entries, PINs, passphrases or backup files here.** Issues are public. Describe what happened instead, and use the demo data for screenshots.
+        Found a security problem? Please don't open an issue. See [SECURITY.md](../blob/main/SECURITY.md).
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what you saw instead.
+      placeholder: "I dragged an issue to Working on it and it jumped back to Noticed."
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open Issues and switch to Board
+        2. Drag a card to the next column
+        3. ...
+  - type: dropdown
+    id: how
+    attributes:
+      label: How are you running it?
+      options:
+        - Added to Home Screen (iPhone)
+        - Safari tab (iPhone)
+        - Added to Home Screen (Android)
+        - Desktop browser
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device and OS version
+      placeholder: "iPhone 15, iOS 26.1"
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: Optional. Please use demo data or blur anything personal.

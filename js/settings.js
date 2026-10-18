@@ -4,6 +4,7 @@ import { todayISO, fmtDate } from './model.js';
 import { esc, toast, confirmSheet, askPin, openSheet } from './ui.js';
 import { openWeeklySheet, reopenWeekly } from './weekly.js';
 import { startTour } from './tour.js';
+import { sanitizeData } from './sanitize.js';
 import { exportJournal, lastBackup } from './backup.js';
 import { reminderPrefs, WEEKLY_CADENCES, BACKUP_CADENCES, DAILY_TIMES, dailyIcsUrl, dailyHint, isApple, fmtTime } from './reminders.js';
 import { THEMES, APPEARANCES, currentTheme, currentAppearance, setTheme, setAppearance, scaleFor, isDark, lightForNow } from './themes.js';
@@ -62,7 +63,7 @@ export function renderSettings(view) {
         <p class="muted small">${dailyHint()}</p>
         <div class="rem-daily">
           <select data-daily-time aria-label="Reminder time">${DAILY_TIMES.map((t) => `<option value="${t}" ${t === prefs.dailyAt ? 'selected' : ''}>${esc(fmtTime(t))}</option>`).join('')}</select>
-          <a class="btn primary" data-daily-add href="${dailyIcsUrl(prefs.dailyAt)}" ${isApple ? '' : 'target="_blank" rel="noopener"'}>Add to Calendar</a>
+          <a class="btn primary" data-daily-add href="${esc(dailyIcsUrl(prefs.dailyAt))}" ${isApple ? '' : 'target="_blank" rel="noopener"'}>Add to Calendar</a>
         </div>
       </div>
       <div class="rem-block">
@@ -440,10 +441,16 @@ async function importJournal(input, view) {
     toast(usesPass ? 'Wrong passphrase for that backup' : 'Wrong PIN for that backup');
     return;
   }
-  const days = Object.keys(data.days || {}).length;
+  try {
+    data = sanitizeData(data);
+  } catch (e) {
+    toast(e.message);
+    return;
+  }
+  const days = Object.keys(data.days).length;
   const ok = await confirmSheet({
     title: 'Replace your journal?',
-    body: `The backup${record.exportedAt ? ` from ${fmtDate(new Date(record.exportedAt).toISOString().slice(0, 10))}` : ''} has ${days} days, ${(data.issues || []).length} issues and ${(data.goals || []).length} goals. It will replace everything here. Your current PIN stays the same.`,
+    body: `The backup${Number.isFinite(record.exportedAt) ? ` from ${fmtDate(new Date(record.exportedAt).toISOString().slice(0, 10))}` : ''} has ${days} days, ${data.issues.length} issues and ${data.goals.length} goals. It will replace everything here. Your current PIN stays the same.`,
     confirm: 'Replace',
     danger: true,
   });

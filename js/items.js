@@ -101,17 +101,17 @@ function cardHTML(kind, it, { rank, draggable, board }) {
   const ageDays = since ? daysBetween(since, done && it.doneAt ? it.doneAt : todayISO()) : 0;
   const accent = kind === 'issues' ? intensityColor(it.intensity) : '#34c39a';
   const meta = kind === 'issues'
-    ? `${it.feeling ? `<span>${feelingEmoji(it.feeling)} ${esc(it.feeling)}${it.intensity ? ` · ${it.intensity}/10` : ''}</span>` : '<span class="muted">No feeling set</span>'}`
+    ? `${it.feeling ? `<span>${feelingEmoji(it.feeling)} ${esc(it.feeling)}${it.intensity ? ` · ${esc(it.intensity)}/10` : ''}</span>` : '<span class="muted">No feeling set</span>'}`
     : `${it.targetDate ? `<span>🎯 ${esc(fmtDate(it.targetDate, { month: 'short', day: 'numeric' }))}</span>` : ''}${it.notes?.firstStep ? `<span class="muted ellipsis">Next: ${esc(it.notes.firstStep)}</span>` : ''}`;
   const nextStatus = CFG[kind].statuses[CFG[kind].statuses.findIndex(([k]) => k === it.status) + 1];
   return `
-    <article class="item-card ${done ? 'done' : ''}" data-id="${it.id}" style="--accent:${accent}">
+    <article class="item-card ${done ? 'done' : ''}" data-id="${esc(it.id)}" style="--accent:${accent}">
       ${draggable ? '<div class="drag-handle" aria-label="Drag to reorder"><span></span><span></span><span></span></div>' : ''}
       <div class="item-main">
         <div class="item-top">
           ${rank ? `<span class="item-rank">#${rank}</span>` : ''}
           ${it.area ? `<span class="tag">${esc(it.area)}</span>` : ''}
-          ${board ? '' : `<span class="status-pill s-${it.status}">${esc(statusLabel(kind, it.status))}</span>`}
+          ${board ? '' : `<span class="status-pill s-${esc(it.status)}">${esc(statusLabel(kind, it.status))}</span>`}
         </div>
         <div class="item-title">${esc(it.title)}</div>
         <div class="item-meta">${meta}<span class="age${kind === 'issues' && !done ? (ageDays >= 90 ? ' old' : ageDays >= 30 ? ' aging' : '') : ''}" title="${kind === 'issues' ? 'How long this has been an issue' : 'Added'}">${clockIcon()} ${since ? esc(fmtAge(since, done && it.doneAt ? it.doneAt : todayISO())) : '–'}</span></div>
@@ -371,8 +371,8 @@ export function openEditor(kind, id, { onDone, reflect = false } = {}) {
         ${chipsHTML('feeling', FEELINGS.map(([n, e]) => [n, `${e} ${n}`]), it.feeling)}
       </div>
       <label class="field">
-        <span class="field-label">How strongly <span class="intensity-val">${it.intensity || 5}/10</span></span>
-        <input type="range" name="intensity" min="1" max="10" value="${it.intensity || 5}">
+        <span class="field-label">How strongly <span class="intensity-val">${esc(it.intensity || 5)}/10</span></span>
+        <input type="range" name="intensity" min="1" max="10" value="${esc(it.intensity || 5)}">
       </label>
       <div class="field">
         <span class="field-label">Is it solvable?</span>

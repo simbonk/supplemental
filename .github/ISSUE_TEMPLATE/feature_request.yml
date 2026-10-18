@@ -1,0 +1,24 @@
+name: Feature request
+description: An idea that would make Supplemental more useful.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Supplemental is deliberately small, private and offline. Ideas that need an account, a server or tracking won't fit, but everything else is welcome.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: The situation or need, in your own words. This matters more than the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would help?
+      description: How you picture it working.
+  - type: textarea
+    id: else
+    attributes:
+      label: Anything else?

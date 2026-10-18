@@ -1,6 +1,6 @@
 // Offline support: always try the network, fall back to the cached app shell.
 // Bump VERSION when files change so old caches are cleared.
-const VERSION = 'supplemental-v37';
+const VERSION = 'supplemental-v38';
 const SHELL = [
   './',
   'index.html',
@@ -18,6 +18,7 @@ const SHELL = [
   'js/day.js',
   'js/items.js',
   'js/tour.js',
+  'js/sanitize.js',
   'js/settings.js',
   'js/themes.js',
   'js/weekly.js',
