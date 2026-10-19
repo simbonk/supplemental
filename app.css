@@ -624,7 +624,7 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 @keyframes tour-in { from { opacity: 0; transform: translateY(6px); } }
 
 /* ---------- Month in review ---------- */
-.rv-hero { min-height: calc(100dvh - 200px); display: flex; flex-direction: column; justify-content: center; text-align: center; position: relative; padding-bottom: 40px; }
+.rv-hero { min-height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - 200px); display: flex; flex-direction: column; justify-content: center; text-align: center; position: relative; padding-bottom: 40px; }
 .rv-nav { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; }
 .rv-kicker { text-transform: uppercase; letter-spacing: .12em; font-size: 12px; font-weight: 700; color: var(--accent); margin: 0 0 6px; }
 .rv-title { font-size: clamp(48px, 15vw, 88px); font-weight: 800; letter-spacing: -0.04em; line-height: 1; margin: 0 0 12px;
