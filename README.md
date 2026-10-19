@@ -15,7 +15,7 @@ A private daily journal that installs on your iPhone Home Screen. Rate each day 
 
 ## Privacy and security
 
-Supplemental has no server, no account and no analytics. Everything stays on your device.
+Supplemental has no server, no account and no tracking. Everything you write stays on your device. The site counts anonymous visits with [Vercel Web Analytics](https://vercel.com/docs/analytics/privacy-policy), which sets no cookies. `js/analytics.js` sends only the app's address, once per launch, never the screen you're on or anything from your journal.
 
 - **Encrypted at rest.** The journal is stored as one AES-256-GCM blob in `localStorage`. A random 256-bit data key encrypts it, and that key is wrapped by a key derived from your PIN with Argon2id (64 MiB, 3 passes).
 - **Its own PIN.** 4 to 8 digits. Use something different from your phone passcode.
@@ -24,7 +24,7 @@ Supplemental has no server, no account and no analytics. Everything stays on you
 - **Demo PIN.** All zeros by default and always the same length as the real PIN. It opens sample data instead of your journal, so nobody watching can tell which one you typed.
 - **Backups** are encrypted files you save yourself. A passphrase backup uses its own random key and a heavier Argon2id setting (64 MiB, 10 passes). You can skip the passphrase and protect a backup with your PIN instead, but see the limits below.
 - **Works offline,** even in airplane mode, once it has been opened.
-- **Strict Content Security Policy:** no third-party scripts, no network requests beyond the app's own files.
+- **Strict Content Security Policy:** no third-party scripts, and no network requests beyond the app's own files and that one visit count.
 
 ### Limits worth knowing
 
@@ -60,6 +60,7 @@ To deploy, point any static host at the repository. On Vercel, `vercel.json` add
 | `js/app.js` | Boot, lock screen, routing, auto-lock |
 | `js/home.js`, `day.js`, `items.js`, `weekly.js`, `settings.js` | The screens |
 | `js/demo.js` | Sample data, regenerated relative to today |
+| `js/analytics.js` | Strips each visit count down to the bare address |
 | `sw.js` | Offline cache. Bump `VERSION` when shipping changes |
 | `vendor/argon2.umd.min.js` | [hash-wasm](https://github.com/Daninet/hash-wasm) 4.12.0, unmodified (MIT) |
 

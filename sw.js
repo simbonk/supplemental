@@ -1,6 +1,6 @@
 // Offline support: always try the network, fall back to the cached app shell.
 // Bump VERSION when files change so old caches are cleared.
-const VERSION = 'supplemental-v46';
+const VERSION = 'supplemental-v47';
 const SHELL = [
   './',
   'index.html',
@@ -47,7 +47,7 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   const url = new URL(req.url);
-  if (req.method !== 'GET' || url.origin !== location.origin || url.pathname.includes('/reminders/') || url.pathname.includes('/promo/')) return;
+  if (req.method !== 'GET' || url.origin !== location.origin || url.pathname.includes('/reminders/') || url.pathname.startsWith('/_vercel/')) return;
   e.respondWith(
     fetch(req)
       .then((res) => {
