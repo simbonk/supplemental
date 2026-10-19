@@ -154,9 +154,10 @@ export async function startSetup() {
   const pin = await askNewPin();
   if (!pin) return;
   const zeros = '0'.repeat(pin.length);
+  const inTab = !(navigator.standalone || window.matchMedia('(display-mode: standalone)').matches);
   const ok = await confirmSheet({
     title: 'Start your journal?',
-    body: `The demo data will be cleared and your journal will be encrypted with this PIN. There is no way to recover it if you forget the PIN. Your demo PIN is now ${zeros}; you can change it in Settings.`,
+    body: `${inTab ? 'You\'re in a browser tab, not the Home Screen app. A journal started here lives in Safari, separate from the app, and a Private tab erases it when you close it. Add Supplemental to your Home Screen first unless you\'re only trying it out. ' : ''}The demo data will be cleared and your journal will be encrypted with this PIN. There is no way to recover it if you forget the PIN. Your demo PIN is now ${zeros}; you can change it in Settings.`,
     confirm: 'Start my journal',
   });
   if (!ok) return;
