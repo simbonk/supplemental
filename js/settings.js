@@ -147,7 +147,7 @@ export function renderSettings(view) {
         <div class="prose small">
           <p><strong>What the app does</strong></p>
           <ul>
-            <li>Everything stays on this phone. There's no account and no server. The website only delivers the app's code; your entries never go to it.</li>
+            <li>Everything stays on this phone. There's no account and no server. The website only delivers the app's code and counts anonymous visits; your entries never go to it.</li>
             <li>Entries are encrypted with AES-256-GCM before they're saved. The key comes from your PIN through Argon2id, a deliberately slow, memory-hungry function (64 MB and about half a second per guess).</li>
             <li>The lock screen slows down after 5 wrong tries, and every attempt is logged under Privacy.</li>
             <li>It locks itself whenever your phone locks or you switch apps.</li>
@@ -192,6 +192,14 @@ export function renderSettings(view) {
           </ul>
         </div>
       </details>
+    </section>
+
+    <h3 class="section-label">Open source</h3>
+    <section class="card list-card">
+      <p class="small muted pad-note">Supplemental is free and open source. Anyone can read the code, and ideas and bug reports are welcome on GitHub. Issues are public, so never include journal entries, your PIN or a backup.</p>
+      <a class="row-btn" href="https://github.com/simbonk/supplemental/issues/new?template=bug_report.yml" target="_blank" rel="noopener"><span>Report a bug</span><span class="chev">›</span></a>
+      <a class="row-btn" href="https://github.com/simbonk/supplemental/issues/new?template=feature_request.yml" target="_blank" rel="noopener"><span>Suggest a feature</span><span class="chev">›</span></a>
+      <a class="row-btn" href="https://github.com/simbonk/supplemental" target="_blank" rel="noopener"><span>See the code<span class="muted small block">github.com/simbonk/supplemental</span></span><span class="chev">›</span></a>
     </section>
 
     <button class="btn ghost block mt" data-tour>Show the walkthrough again</button>
