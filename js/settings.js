@@ -88,7 +88,7 @@ export function renderSettings(view) {
       <div class="privacy-note-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
       <div>
         <strong>Private by design</strong>
-        <p class="small muted">Your journal never leaves this phone. There's no account, no server and no tracking. Everything is encrypted with your PIN before it's saved, so even someone who copied the app's files couldn't read them. Backups you export are encrypted the same way.</p>
+        <p class="small muted">Your journal never leaves this phone. There's no account and no tracking. The site only counts anonymous visits, without cookies, and never sees what you write. Everything is encrypted with your PIN before it's saved, so even someone who copied the app's files couldn't read them. Backups you export are encrypted the same way.</p>
       </div>
     </section>
     ${real ? storageHTML() : ''}
