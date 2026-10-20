@@ -199,7 +199,7 @@ function showShell() {
       <header class="topbar">
         ${state.mode === 'demo' ? `<div class="demo-banner">
           <span>${state.hasVault ? 'Demo data. Changes are not saved.' : 'You are looking at demo data.'}</span>
-          <button class="chip-btn" data-demo-action>${state.hasVault ? 'Lock' : 'Set your PIN'}</button>
+          <span class="demo-actions">${state.hasVault ? '<button class="chip-btn ghost" data-demo-hide>Hide</button>' : ''}<button class="chip-btn" data-demo-action>${state.hasVault ? 'Lock' : 'Set your PIN'}</button></span>
         </div>` : ''}
         <div class="app-head"><a href="#home" class="wordmark">Supplemental</a><span class="app-tagline">Private journal</span></div>
       </header>
@@ -212,6 +212,9 @@ function showShell() {
     </div>`;
   const demoBtn = $('[data-demo-action]', app);
   if (demoBtn) demoBtn.addEventListener('click', () => (state.hasVault ? lock() : startSetup()));
+  // Hides the banner until the next unlock, for showing the demo to someone.
+  const hideBtn = $('[data-demo-hide]', app);
+  if (hideBtn) hideBtn.addEventListener('click', () => $('.demo-banner', app).remove());
   bindTabbar($('.tabbar', app));
   // Always open on Home, not wherever the app was when it last locked.
   history.replaceState(null, '', '#home');

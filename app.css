@@ -133,6 +133,8 @@ body.privacy::after {
   background: linear-gradient(90deg, var(--s3), var(--s6));
   color: #fff; font-size: 13px; font-weight: 500;
 }
+.demo-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.chip-btn.ghost { background: rgba(255, 255, 255, .18); color: #fff; }
 .chip-btn { border: 0; border-radius: 999px; padding: 6px 12px; background: rgba(255, 255, 255, .95); color: #111; font-weight: 600; font-size: 13px; white-space: nowrap; }
 
 .tabbar {
