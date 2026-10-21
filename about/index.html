@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Supplemental · A private, encrypted journal for iPhone</title>
+  <meta name="description" content="Supplemental is a free, private daily journal for iPhone. Rate each day from 1 to 10, track what's weighing on you and your goals, and see your mood patterns on a year heat map. Encrypted on your phone with its own PIN. No account, no cloud, works offline.">
+  <link rel="canonical" href="https://supplemental.day/about/">
+  <meta name="theme-color" content="#f6f5f9" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0e0c14" media="(prefers-color-scheme: dark)">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Supplemental">
+  <meta property="og:title" content="Supplemental · A private, encrypted journal">
+  <meta property="og:description" content="One number a day, and the pattern shows over time. Encrypted on your phone. No account. No cloud.">
+  <meta property="og:url" content="https://supplemental.day/about/">
+  <meta property="og:image" content="https://supplemental.day/about/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Supplemental: a year of days shown as colored squares on an iPhone.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Supplemental",
+    "url": "https://supplemental.day/",
+    "description": "A private daily journal that installs on your iPhone Home Screen. Rate each day from 1 to 10, keep a ranked list of what's weighing on you and the goals you're building toward, and see your patterns on a year heat map. Encrypted on the device with its own PIN, with no account and no cloud.",
+    "applicationCategory": "LifestyleApplication",
+    "operatingSystem": "iOS, iPadOS (Safari, Add to Home Screen)",
+    "browserRequirements": "Requires JavaScript. Best in Safari on iPhone.",
+    "isAccessibleForFree": true,
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "image": "https://supplemental.day/about/og.png",
+    "screenshot": [
+      "https://supplemental.day/about/heatmap.webp",
+      "https://supplemental.day/about/lock.webp",
+      "https://supplemental.day/about/flower.webp"
+    ],
+    "featureList": [
+      "Daily score from 1 to 10 with a short note",
+      "Year-in-pixels mood heat map",
+      "Ranked list of issues with a board view",
+      "Goals and weekly review",
+      "Monthly review shown as a flower of thankful moments",
+      "AES-256-GCM encryption with an Argon2id-derived PIN key",
+      "Optional Face ID unlock",
+      "Encrypted backups",
+      "Works offline, no account, no cloud"
+    ],
+    "license": "https://opensource.org/licenses/MIT",
+    "sameAs": ["https://github.com/simbonk/supplemental"]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "Is Supplemental free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. It's free, with no ads, no subscription and no account. The code is open source under the MIT licence." } },
+      { "@type": "Question", "name": "Where is my journal stored?", "acceptedAnswer": { "@type": "Answer", "text": "Only on your phone, encrypted with a key derived from your PIN. There is no server and no cloud sync. You can save encrypted backup files yourself." } },
+      { "@type": "Question", "name": "Is it in the App Store?", "acceptedAnswer": { "@type": "Answer", "text": "No. It's a web app you add to your Home Screen from Safari. It then opens full screen like a regular app and works offline." } },
+      { "@type": "Question", "name": "What if I forget my PIN?", "acceptedAnswer": { "@type": "Answer", "text": "There is no recovery. Without the PIN, or a backup and its passphrase, nobody can read the journal, including you." } }
+    ]
+  }
+  </script>
+  <style>
+    :root {
+      --bg: #f6f5f9; --surface: #fff; --text: #17141f; --muted: #6e6a7c; --line: #e3e0ea; --accent: #6d28d9;
+      color-scheme: light dark;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #0e0c14; --surface: #18151f; --text: #f2f0f7; --muted: #9a95aa; --line: #2c2836; --accent: #8b5cf6; }
+      h1 { background-image: linear-gradient(90deg, #a23fb0, #d6517c 50%, #fbbf24); }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font: 17px/1.55 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, sans-serif;
+    }
+    main { max-width: 760px; margin: 0 auto; padding: calc(env(safe-area-inset-top, 0px) + 40px) 20px 64px; }
+    h1 { font-size: 44px; line-height: 1.1; margin: 0 0 8px; letter-spacing: -.02em;
+      background: linear-gradient(90deg, #4c1d95, #d6517c 55%, #f98c2c); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    h2 { font-size: 24px; margin: 48px 0 12px; letter-spacing: -.01em; }
+    h3 { font-size: 17px; margin: 20px 0 4px; }
+    p, li { color: var(--muted); }
+    p.lede { font-size: 21px; color: var(--text); margin: 0 0 24px; }
+    strong { color: var(--text); }
+    a { color: var(--accent); }
+    .cta { display: inline-block; background: var(--accent); color: #fff; text-decoration: none; font-weight: 600;
+      padding: 14px 26px; border-radius: 999px; margin: 4px 12px 4px 0; }
+    .cta.ghost { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+    .shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 32px 0 0; }
+    .shots img { width: 100%; height: auto; border-radius: 18px; border: 1px solid var(--line); display: block; }
+    .shots figcaption { font-size: 14px; color: var(--muted); margin-top: 6px; text-align: center; }
+    ul { padding-left: 20px; }
+    li { margin: 6px 0; }
+    ol li { margin: 4px 0; }
+    footer { border-top: 1px solid var(--line); margin-top: 56px; padding-top: 20px; font-size: 15px; color: var(--muted); }
+    @media (max-width: 560px) {
+      h1 { font-size: 36px; }
+      .shots { grid-template-columns: 1fr 1fr; }
+      .shots figure:last-child { display: none; }
+    }
+    figure { margin: 0; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Supplemental</h1>
+    <p class="lede">A private journal for your iPhone. One number a day, and over time you see the pattern.</p>
+    <a class="cta" href="/">Open the app</a>
+    <a class="cta ghost" href="https://github.com/simbonk/supplemental">View the code</a>
+  </header>
+
+  <div class="shots">
+    <figure><img src="heatmap.webp" width="540" height="960" alt="A year of days as colored squares, one per day, colored by score."><figcaption>Your year at a glance</figcaption></figure>
+    <figure><img src="lock.webp" width="540" height="960" alt="The lock screen with a PIN keypad."><figcaption>Locked with its own PIN</figcaption></figure>
+    <figure><img src="flower.webp" width="540" height="669" alt="The monthly review: a flower with a petal for each day, labeled with what you were thankful for."><figcaption>Every month blooms</figcaption></figure>
+  </div>
+
+  <h2>What it does</h2>
+  <ul>
+    <li><strong>Log your day in a minute.</strong> A score from 1 to 10 and a line about how it went, with an optional "thankful for".</li>
+    <li><strong>See the pattern.</strong> A year-in-pixels heat map shows good and hard stretches you couldn't see day to day, in six color themes.</li>
+    <li><strong>Rank what's weighing on you.</strong> Keep a list of issues so the most important one gets your attention first, with prompts to think each one through. A board moves them from Noticed to Working on it to Resolved.</li>
+    <li><strong>Keep sight of the good stuff.</strong> Goals you're building toward, and a short weekly review of how each one moved.</li>
+    <li><strong>Every month blooms into a flower.</strong> A petal for each day, in the color you gave it, with what you were thankful for.</li>
+    <li><strong>Reminders.</strong> A daily Calendar reminder, and nudges to save a backup.</li>
+  </ul>
+
+  <h2>Private by design</h2>
+  <ul>
+    <li><strong>No account, no cloud, no tracking.</strong> Your journal never leaves your phone. The site counts anonymous visits without cookies, and never sees anything you write.</li>
+    <li><strong>Encrypted on your phone.</strong> AES-256-GCM, with a key derived from your PIN using Argon2id.</li>
+    <li><strong>Its own PIN,</strong> separate from your phone's passcode, with optional Face ID.</li>
+    <li><strong>Locks the moment you leave</strong> the app or lock your phone.</li>
+    <li><strong>A demo PIN</strong> opens sample data instead of your journal, so someone watching can't tell which one you typed.</li>
+    <li><strong>Works in airplane mode,</strong> because it never needed the internet.</li>
+    <li><strong>Open source</strong> under the MIT licence, so anyone can check these claims. The <a href="https://github.com/simbonk/supplemental#privacy-and-security">README</a> also lists the limits honestly.</li>
+  </ul>
+
+  <h2>How to install</h2>
+  <p>Supplemental isn't in the App Store. It's a web app that installs from Safari and then runs full screen, like any other app.</p>
+  <ol>
+    <li>Open <a href="/">supplemental.day</a> in Safari on your iPhone.</li>
+    <li>Tap <strong>Share</strong> (on newer iOS, tap the menu button left of the address first).</li>
+    <li>Choose <strong>Add to Home Screen</strong>.</li>
+    <li>Open it from the new icon and set your PIN.</li>
+  </ol>
+  <p>It opens with demo data, so you can look around before you start.</p>
+
+  <h2>Questions</h2>
+  <h3>Is it free?</h3>
+  <p>Yes. No ads, no subscription and no account.</p>
+  <h3>Where is my journal stored?</h3>
+  <p>Only on your phone, encrypted. You can save encrypted backup files yourself, protected by a passphrase.</p>
+  <h3>What if I forget my PIN?</h3>
+  <p>There is no recovery. Without the PIN, or a backup and its passphrase, nobody can read the journal, including you. Keep a backup.</p>
+  <h3>Does it work on Android or a computer?</h3>
+  <p>It's designed for iPhone and also runs on iPad. Other browsers can open it, but it's built and tested for Safari.</p>
+
+  <footer>
+    <p>Supplemental. Notice patterns. Name what matters. Talk about it sooner.</p>
+    <p><a href="/">Open the app</a> · <a href="https://github.com/simbonk/supplemental">GitHub</a> · <a href="https://github.com/simbonk/supplemental/blob/main/SECURITY.md">Security</a></p>
+  </footer>
+</main>
+<script src="/js/analytics.js" defer></script>
+<script src="/_vercel/insights/script.js" defer></script>
+</body>
+</html>

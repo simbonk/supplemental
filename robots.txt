@@ -1,0 +1,7 @@
+# Search engines and AI assistants are welcome. There is nothing private on
+# this site: every journal lives encrypted on its owner's phone.
+User-agent: *
+Allow: /
+Disallow: /reminders/
+
+Sitemap: https://supplemental.day/sitemap.xml
