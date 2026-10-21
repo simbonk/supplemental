@@ -16,5 +16,6 @@ Key facts:
 
 - [Open the app](https://supplemental.day/): the app itself; opens with demo data
 - [About Supplemental](https://supplemental.day/about/): features, privacy, install steps and FAQ
+- [Demo video](https://www.youtube.com/shorts/hviB-h_-VBY): an 83-second narrated tour on YouTube
 - [Source code and README](https://github.com/simbonk/supplemental): full privacy and security details, including known limits
 - [Security policy](https://github.com/simbonk/supplemental/blob/main/SECURITY.md)

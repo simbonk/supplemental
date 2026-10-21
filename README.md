@@ -4,6 +4,8 @@ A private daily journal that installs on your iPhone Home Screen. Rate each day 
 
 **Try it:** open [supplemental.day](https://supplemental.day) in Safari on an iPhone, tap Share, then **Add to Home Screen**. It opens with demo data so you can look around before setting a PIN.
 
+**Watch:** [the 83-second demo](https://www.youtube.com/shorts/hviB-h_-VBY) on YouTube.
+
 ## What it does
 
 - **Daily log.** A score and a short note, about a minute a day. Optional "thankful for" line.
