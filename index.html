@@ -4,7 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
   <title>Supplemental · Private journal</title>
-  <meta name="description" content="A private, encrypted daily journal.">
+  <meta name="description" content="A free, private daily journal for iPhone. Rate each day from 1 to 10 and see your patterns on a year heat map. Encrypted on your phone with its own PIN. No account, no cloud, works offline.">
+  <link rel="canonical" href="https://supplemental.day/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Supplemental">
+  <meta property="og:title" content="Supplemental · A private, encrypted journal">
+  <meta property="og:description" content="One number a day, and the pattern shows over time. Encrypted on your phone. No account. No cloud.">
+  <meta property="og:url" content="https://supplemental.day/">
+  <meta property="og:image" content="https://supplemental.day/about/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Supplemental: a year of days shown as colored squares on an iPhone.">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#f6f5f9" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0e0c14" media="(prefers-color-scheme: dark)">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,6 +26,21 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <link rel="manifest" href="manifest.webmanifest">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Supplemental",
+    "url": "https://supplemental.day/",
+    "description": "A private daily journal that installs on your iPhone Home Screen. Encrypted on the device with its own PIN, with no account and no cloud.",
+    "applicationCategory": "LifestyleApplication",
+    "operatingSystem": "iOS, iPadOS (Safari, Add to Home Screen)",
+    "isAccessibleForFree": true,
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "image": "https://supplemental.day/about/og.png",
+    "sameAs": ["https://github.com/simbonk/supplemental"]
+  }
+  </script>
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="stylesheet" href="app.css">
@@ -24,7 +50,14 @@
   <script type="module" src="js/app.js"></script>
 </head>
 <body>
-  <div id="app"></div>
+  <div id="app">
+    <!-- Shown only until the app starts. Search engines and AI tools that don't run JavaScript read this instead. -->
+    <div class="prerender">
+      <h1>Supplemental</h1>
+      <p>A private, encrypted daily journal for iPhone. Rate each day from 1 to 10, keep a ranked list of what's weighing on you and the goals you're building toward, and see your patterns on a year heat map. Everything stays on your phone, locked with its own PIN. No account, no cloud, and it works offline.</p>
+      <p><a href="about/">About Supplemental</a> · <a href="https://www.youtube.com/shorts/hviB-h_-VBY">Demo video</a> · <a href="https://github.com/simbonk/supplemental">Source code</a></p>
+    </div>
+  </div>
   <noscript>Supplemental needs JavaScript to run.</noscript>
 </body>
 </html>

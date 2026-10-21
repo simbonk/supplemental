@@ -200,6 +200,7 @@ export function renderSettings(view) {
       <a class="row-btn" href="https://github.com/simbonk/supplemental/issues/new?template=bug_report.yml" target="_blank" rel="noopener"><span>Report a bug</span><span class="chev">›</span></a>
       <a class="row-btn" href="https://github.com/simbonk/supplemental/issues/new?template=feature_request.yml" target="_blank" rel="noopener"><span>Suggest a feature</span><span class="chev">›</span></a>
       <a class="row-btn" href="https://github.com/simbonk/supplemental" target="_blank" rel="noopener"><span>See the code<span class="muted small block">github.com/simbonk/supplemental</span></span><span class="chev">›</span></a>
+      <a class="row-btn" href="https://supplemental.day/about/" target="_blank" rel="noopener"><span>About Supplemental<span class="muted small block">What it is, a demo video, and a link to share</span></span><span class="chev">›</span></a>
     </section>
 
     <button class="btn ghost block mt" data-tour>Show the walkthrough again</button>

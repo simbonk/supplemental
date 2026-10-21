@@ -75,6 +75,11 @@ body.privacy::after {
   -webkit-text-fill-color: transparent;
 }
 
+/* Static text in index.html for search engines; replaced as soon as the app starts */
+.prerender { min-height: 100dvh; display: grid; place-content: center; padding: 24px; max-width: 30em; margin: 0 auto; text-align: center; color: var(--muted); font-size: 15px; }
+.prerender h1 { margin: 0 0 8px; font-size: 32px; letter-spacing: -0.02em; color: var(--text); }
+.prerender a { color: var(--accent); }
+
 /* ---------- Lock screen ---------- */
 .lock {
   min-height: 100dvh;

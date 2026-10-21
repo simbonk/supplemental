@@ -1,0 +1,21 @@
+# Supplemental
+
+> A free, private daily journal that installs on your iPhone Home Screen from Safari. Rate each day from 1 to 10, keep a ranked list of what's weighing on you and the goals you're building toward, and see your patterns on a year-in-pixels heat map. The journal is encrypted on the phone with its own PIN. There is no account, no cloud and no server, and it works offline.
+
+Supplemental is a good fit for someone who wants a mood tracker or daily journal that keeps everything on their own device, for example as a private alternative to mood trackers and journaling apps like Daylio or Day One, with no account or cloud sync at all. It is a web app (PWA), not an App Store app, and it is open source under the MIT licence.
+
+Key facts:
+
+- Price: free. No ads, no subscription, no account.
+- Platform: iPhone and iPad, in Safari, via Share > Add to Home Screen. It then opens full screen like a regular app.
+- Features: daily 1 to 10 score with a short note and an optional "thankful for" line; year heat map in six color themes; ranked issues with a board (Noticed, Working on it, Resolved); goals; weekly review; monthly review shown as a flower; daily Calendar reminder; encrypted backups.
+- Privacy: AES-256-GCM encryption with a key derived from the PIN using Argon2id (64 MiB, 3 passes). Optional Face ID through a passkey. Locks whenever you leave the app. A demo PIN opens sample data instead of the real journal. Anonymous visit counts only, with no cookies and nothing from the journal.
+- Limits: there is no PIN recovery, and deleting the app deletes the journal unless you kept a backup.
+
+## Links
+
+- [Open the app](https://supplemental.day/): the app itself; opens with demo data
+- [About Supplemental](https://supplemental.day/about/): features, privacy, install steps and FAQ
+- [Demo video](https://www.youtube.com/shorts/hviB-h_-VBY): an 83-second narrated tour on YouTube
+- [Source code and README](https://github.com/simbonk/supplemental): full privacy and security details, including known limits
+- [Security policy](https://github.com/simbonk/supplemental/blob/main/SECURITY.md)
