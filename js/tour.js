@@ -1,25 +1,28 @@
 // First-run walkthrough: a spotlight on each tab, then Settings to install and set a PIN.
 
 import { state, nav } from './state.js';
+import { isComputer, isMacSafari, Tap, passcode } from './device.js';
 
 const KEY = 'supplemental:ui:tour';
 const standalone = () => navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+// Chrome and Edge on a computer keep the journal in the browser itself, so it's ready as is.
+const ready = () => standalone() || (isComputer && !isMacSafari);
 
 const STEPS = [
   { go: 'home', target: '.tab[data-tab=home]', title: 'Home', text: "Your day at a glance: today's score, your year as a heat map, and anything that needs you." },
   { go: 'issues', target: '.tab[data-tab=issues]', title: 'Issues', text: "The things weighing on you, ranked. The top of the list is what gets your attention first." },
   { go: 'goals', target: '.tab[data-tab=goals]', title: 'Goals', text: "What you're building toward, so it isn't only about what's wrong." },
-  { go: 'new', target: '.tab[data-tab=new]', title: 'Log your day', text: 'Tap + once a day: a score from 1 to 10 and a line about how it went. About a minute.' },
+  { go: 'new', target: '.tab[data-tab=new]', title: 'Log your day', text: `${Tap} + once a day: a score from 1 to 10 and a line about how it went. About a minute.` },
   {
-    go: 'settings', target: '.install-tip', title: 'First, add it to your Home Screen',
-    text: 'Follow the steps in this card. It then opens full screen, like a real app.',
+    go: 'settings', target: '.install-tip', title: isMacSafari ? 'First, add it to your Dock' : 'First, add it to your Home Screen',
+    text: isMacSafari ? 'Follow the steps in this card. It then opens in its own window, like a real app.' : 'Follow the steps in this card. It then opens full screen, like a real app.',
   },
   {
-    go: 'settings', target: '[data-setup]', title: () => (standalone() ? 'Last step: set your PIN' : 'Then set your PIN'),
-    text: () => (standalone()
-      ? 'Your PIN encrypts your journal. Make it different from your phone passcode.'
-      : 'Do this in the app you just added, not here in the browser. Your PIN encrypts your journal, so make it different from your phone passcode.'),
-    action: () => (standalone() ? ['Set my PIN', () => nav.startSetup()] : null),
+    go: 'settings', target: '[data-setup]', title: () => (ready() ? 'Last step: set your PIN' : 'Then set your PIN'),
+    text: () => (ready()
+      ? `Your PIN encrypts your journal. Make it different from your ${passcode}.`
+      : `Do this in the app you just added, not here in the browser. Your PIN encrypts your journal, so make it different from your ${passcode}.`),
+    action: () => (ready() ? ['Set my PIN', () => nav.startSetup()] : null),
   },
 ];
 
@@ -85,8 +88,10 @@ export function startTour() {
     if (i >= STEPS.length) return finish();
     const s = STEPS[i];
     if (s.go === 'settings') {
-      // Sit the card just above the tab bar, leaving room for the tip above it.
-      const bar = document.querySelector('.tabbar')?.getBoundingClientRect().top ?? window.innerHeight;
+      // Sit the card just above the tab bar (or the bottom of the window on
+      // desktop, where the tabs are at the top), leaving room for the tip above it.
+      const bar = document.body.classList.contains('desktop') ? window.innerHeight
+        : document.querySelector('.tabbar')?.getBoundingClientRect().top ?? window.innerHeight;
       window.scrollBy(0, target.getBoundingClientRect().bottom - (bar - 16));
       await new Promise((ok) => setTimeout(ok, 250));
     }

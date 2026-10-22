@@ -15,6 +15,8 @@ export const DAILY_TIMES = Array.from({ length: 48 }, (_, i) => {
   return `${h}:${i % 2 ? '30' : '00'}`;
 });
 
+import { isMac, tap } from './device.js';
+
 export const isApple = /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent);
 
 // Apple: webcal:// hands the feed straight to Calendar as a subscription (opening the
@@ -43,9 +45,10 @@ export function dailyIcsUrl(time) {
 }
 
 export function dailyHint() {
+  if (isMac) return 'Opens Calendar on your Mac to subscribe to a daily "Supplemental" event. Click <strong>Subscribe</strong>, pick <strong>iCloud</strong> as the location to get it on your iPhone too, and leave <strong>Alerts</strong> unticked under Remove. To stop it, delete that calendar in Calendar.';
   return isApple
     ? 'Adds a daily "Supplemental" event with an alert to your phone\'s Calendar. When Calendar opens, keep <strong>Event Alerts</strong> on and tap the checkmark. To stop it, delete that calendar in the Calendar app.'
-    : 'Opens Google Calendar with a daily "Supplemental" event filled in. Check it repeats <strong>Daily</strong>, set a notification <strong>at time of event</strong>, then tap <strong>Save</strong>. To stop it, delete the event and choose <strong>All events</strong>.';
+    : `Opens Google Calendar with a daily "Supplemental" event filled in. Check it repeats <strong>Daily</strong>, set a notification <strong>at time of event</strong>, then ${tap} <strong>Save</strong>. To stop it, delete the event and choose <strong>All events</strong>.`;
 }
 
 function pad(n) {

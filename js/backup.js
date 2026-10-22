@@ -4,6 +4,7 @@ import * as vault from './vault.js';
 import { state, persist } from './state.js';
 import { todayISO, addDays, fmtDate } from './model.js';
 import { esc, toast, openSheet } from './ui.js';
+import { isComputer } from './device.js';
 import { reminderPrefs } from './reminders.js';
 
 const SNOOZE_DAYS = 7;
@@ -113,8 +114,8 @@ export function exportJournal() {
       // Sharing needs a fresh tap, so the file is handed off from a second button.
       el.innerHTML = `
         <h2 class="sheet-title">Backup ready</h2>
-        <p class="muted small">Save it to Files or iCloud Drive. To restore it later, use Import journal and enter ${how}.</p>
-        <div class="stack gap-s mt"><button class="btn primary block" data-save>Save backup file</button></div>`;
+        <p class="muted small">${isComputer ? 'It downloads to this computer. Keep a copy somewhere safe, like a cloud folder or a USB drive.' : 'Save it to Files or iCloud Drive.'} To restore it later, use Import journal and enter ${how}.</p>
+        <div class="stack gap-s mt"><button class="btn primary block" data-save>${isComputer ? 'Download backup file' : 'Save backup file'}</button></div>`;
       el.querySelector('[data-save]').addEventListener('click', async () => {
         const ok = await saveFile(text);
         if (ok) { finish(true); s.close(); }
@@ -140,7 +141,8 @@ export function exportJournal() {
 async function saveFile(text) {
   const name = `supplemental-${todayISO()}.json`;
   const file = new File([text], name, { type: 'application/json' });
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+  // Computers download it; a share sheet there is an odd detour.
+  if (!isComputer && navigator.canShare && navigator.canShare({ files: [file] })) {
     // The share sheet takes focus; don't blur the app behind it.
     state.sharing = true;
     try {
