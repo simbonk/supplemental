@@ -16,8 +16,8 @@ const NOTES = {
     'Felt invisible at dinner. Everyone on their phones, me included.',
     'Work deadline slipped again. Snapped at the kids and felt awful afterwards.',
     'Bad sleep, short fuse. Not my best self today.',
-    'Said things I regret. Slept on the couch.',
-    'Felt completely alone in a full house.',
+    'Said something sharp I didn\'t mean. Apologised before bed.',
+    'Long, flat day. Didn\'t feel like talking to anyone.',
   ],
   mid: [
     'Ordinary day. Got through the to-do list, quiet evening.',
@@ -62,14 +62,14 @@ export function makeDemoData() {
 
   data.issues = [
     {
-      id: uid(), title: 'We feel like roommates, not partners', area: 'Marriage', status: 'working',
-      startedAt: addDays(today, -230), feeling: 'Lonely', intensity: 8, kind: 'solvable', talked: 'tried',
+      id: uid(), title: 'Hardly any time just the two of us', area: 'Marriage', status: 'working',
+      startedAt: addDays(today, -230), feeling: 'Disconnected', intensity: 6, kind: 'solvable', talked: 'tried',
       notes: {
-        facts: 'Most evenings we\'re in separate rooms after the kids go down.',
-        need: 'To feel wanted and chosen.',
-        story: 'That she\'d rather be alone than with me. Probably not fully true; she\'s exhausted too.',
+        facts: 'Most weeknights we\'re both on our laptops once the kids are in bed.',
+        need: 'Some time that\'s just ours, without logistics.',
+        story: 'That we\'ve slipped into autopilot. Probably not that deep; we\'re both just tired.',
         better: 'Twenty minutes together most nights, phones away.',
-        nextStep: 'Ask about a standing Thursday walk.',
+        nextStep: 'Suggest a standing Thursday evening walk.',
       },
       createdAt: Date.now(),
     },
