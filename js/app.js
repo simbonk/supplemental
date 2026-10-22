@@ -10,6 +10,7 @@ import { renderSettings } from './settings.js';
 import { renderReview, leaveReview } from './review.js';
 import { shouldTour, startTour } from './tour.js';
 import { applyTheme, setKeepLight, inFirstDay } from './themes.js';
+import { desktopQuery, isComputer, isMacSafari, bioName } from './device.js';
 
 const app = $('#app');
 
@@ -42,7 +43,7 @@ function showLock(message = '') {
       </div>
       <div class="pin-pad">${keypadHTML()}</div>
       <div class="lock-links">
-        ${bio ? `<button class="link-btn faceid" data-faceid>${faceIdIcon()} Use Face ID</button>` : ''}
+        ${bio ? `<button class="link-btn faceid" data-faceid>${faceIdIcon()} Use ${bioName}</button>` : ''}
         <button class="link-btn muted-link" data-forgot>Forgot PIN?</button>
       </div>
     </div>`;
@@ -92,7 +93,7 @@ async function faceUnlock(msg, pad) {
   } catch (e) {
     pad.setBusy(false);
     if (e.name !== 'NotAllowedError') vault.logAttempt(false, 'Face ID');
-    msg.textContent = e.name === 'NotAllowedError' ? 'Face ID cancelled. Enter your PIN.' : e.message;
+    msg.textContent = e.name === 'NotAllowedError' ? `${bioName} cancelled. Enter your PIN.` : e.message;
   }
 }
 
@@ -106,7 +107,7 @@ function forgotPin() {
   const s = openSheet(`
     <h2 class="sheet-title">Forgot your PIN?</h2>
     <p class="muted">Your journal is encrypted with your PIN and nobody, including the app, can unlock it without it. That's the point, but it means there is no reset.</p>
-    <p class="muted">If you have Face ID set up, use that, then change your PIN in Settings. If you have a backup file and remember the PIN you used then, you can start fresh and import it.</p>
+    <p class="muted">If you have ${bioName} set up, use that, then change your PIN in Settings. If you have a backup file and remember the PIN you used then, you can start fresh and import it.</p>
     <div class="stack gap-s mt">
       <button class="btn danger block" data-erase>Erase journal and start over</button>
       <button class="btn ghost block" data-close>Cancel</button>
@@ -157,7 +158,7 @@ export async function startSetup() {
   const inTab = !(navigator.standalone || window.matchMedia('(display-mode: standalone)').matches);
   const ok = await confirmSheet({
     title: 'Start your journal?',
-    body: `${inTab ? 'You\'re in a browser tab, not the Home Screen app. A journal started here lives in Safari, separate from the app, and a Private tab erases it when you close it. Add Supplemental to your Home Screen first unless you\'re only trying it out. ' : ''}The demo data will be cleared and your journal will be encrypted with this PIN. There is no way to recover it if you forget the PIN. Your demo PIN is now ${zeros}; you can change it in Settings.`,
+    body: `${inTab ? setupWarning() : ''}The demo data will be cleared and your journal will be encrypted with this PIN. There is no way to recover it if you forget the PIN. Your demo PIN is now ${zeros}; you can change it in Settings.`,
     confirm: 'Start my journal',
   });
   if (!ok) return;
@@ -171,13 +172,21 @@ export async function startSetup() {
   toast('Your journal is ready');
 }
 
+function setupWarning() {
+  if (isMacSafari) return 'You\'re in a Safari tab, not the Dock app. Safari can clear a site\'s data when you haven\'t opened it for a week, and a Private window erases it when you close it. Add Supplemental to your Dock first (File › Add to Dock) unless you\'re only trying it out. ';
+  if (isComputer) return 'Your journal will live in this browser on this computer. A private window erases it when you close it, and clearing the browser\'s site data deletes it, so export a backup now and then. ';
+  return 'You\'re in a browser tab, not the Home Screen app. A journal started here lives in Safari, separate from the app, and a Private tab erases it when you close it. Add Supplemental to your Home Screen first unless you\'re only trying it out. ';
+}
+
 function tooEasy(pin) {
   return /^(\d)\1+$/.test(pin) || '01234567890'.includes(pin) || '98765432109'.includes(pin);
 }
 
 // Ask for a new PIN twice. Returns the PIN or null.
 export async function askNewPin(title = 'Choose a PIN') {
-  const first = await askPin(title, '4 to 8 digits, then tap ✓. Longer is safer. Use something different from your iPhone passcode.');
+  const first = await askPin(title, isComputer
+    ? 'Type 4 to 8 digits, then press Enter. Longer is safer. Use something different from your computer password.'
+    : '4 to 8 digits, then tap ✓. Longer is safer. Use something different from your iPhone passcode.');
   if (!first) return null;
   if (tooEasy(first)) {
     toast('Too easy to guess. Pick another.');
@@ -216,10 +225,22 @@ function showShell() {
   const hideBtn = $('[data-demo-hide]', app);
   if (hideBtn) hideBtn.addEventListener('click', () => $('.demo-banner', app).remove());
   bindTabbar($('.tabbar', app));
+  placeTabbar();
   // Always open on Home, not wherever the app was when it last locked.
   history.replaceState(null, '', '#home');
   route();
 }
+
+// Desktop: the tabs move up into the header as a top menu. Phones keep the
+// bottom tab bar, with the same markup and handlers.
+function placeTabbar() {
+  document.body.classList.toggle('desktop', desktopQuery.matches);
+  const bar = $('.tabbar', app);
+  if (!bar) return;
+  if (desktopQuery.matches) $('.app-head', app).appendChild(bar);
+  else $('.shell', app).appendChild(bar);
+}
+desktopQuery.addEventListener('change', placeTabbar);
 
 // iOS swallows the first tap while the page is still coasting from a scroll,
 // so tabs switch on touchend rather than waiting for a click that never comes.
@@ -306,6 +327,7 @@ window.addEventListener('focus', () => document.body.classList.remove('privacy')
 
 function boot() {
   applyTheme();
+  placeTabbar();
   state.hasVault = vault.hasVault();
   if (state.hasVault) showLock();
   else {

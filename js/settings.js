@@ -7,6 +7,7 @@ import { startTour } from './tour.js';
 import { sanitizeData } from './sanitize.js';
 import { exportJournal, lastBackup } from './backup.js';
 import { reminderPrefs, WEEKLY_CADENCES, BACKUP_CADENCES, DAILY_TIMES, dailyIcsUrl, dailyHint, isApple, fmtTime } from './reminders.js';
+import { isComputer, isMac, isMacSafari, device, passcode, bioName } from './device.js';
 import { THEMES, APPEARANCES, currentTheme, currentAppearance, setTheme, setAppearance, scaleFor, isDark, lightForNow } from './themes.js';
 
 let showAllAttempts = false;
@@ -46,7 +47,7 @@ export function renderSettings(view) {
     <h3 class="section-label">Appearance</h3>
     <section class="card">
       <div class="segmented wide" data-appearance>${APPEARANCES.map(([v, l]) => `<button data-v="${v}" class="${currentAppearance() === v ? 'on' : ''}">${l}</button>`).join('')}</div>
-      ${lightForNow() ? `<p class="hint left">${state.mode === 'demo' ? 'The demo stays light. Your journal follows your phone after its first day.' : 'Staying light for your first day. After that, System follows your phone.'} Pick Dark to switch now.</p>` : ''}
+      ${lightForNow() ? `<p class="hint left">${state.mode === 'demo' ? `The demo stays light. Your journal follows your ${device} after its first day.` : `Staying light for your first day. After that, System follows your ${device}.`} Pick Dark to switch now.</p>` : ''}
       <div class="theme-grid">${Object.entries(THEMES).map(([id, t]) => `
         <button class="theme-opt ${currentTheme() === id ? 'on' : ''}" data-theme="${id}">
           <span class="theme-opt-head">${esc(t.name)}${currentTheme() === id ? '<span class="theme-check">✓</span>' : ''}</span>
@@ -88,7 +89,7 @@ export function renderSettings(view) {
       <div class="privacy-note-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
       <div>
         <strong>Private by design</strong>
-        <p class="small muted">Your journal never leaves this phone. There's no account and no tracking. The site only counts anonymous visits, without cookies, and never sees what you write. Everything is encrypted with your PIN before it's saved, so even someone who copied the app's files couldn't read them. Backups you export are encrypted the same way.</p>
+        <p class="small muted">Your journal never leaves this ${device}. There's no account and no tracking. The site only counts anonymous visits, without cookies, and never sees what you write. Everything is encrypted with your PIN before it's saved, so even someone who copied the app's files couldn't read them. Backups you export are encrypted the same way.</p>
       </div>
     </section>
     ${real ? storageHTML() : ''}
@@ -96,12 +97,12 @@ export function renderSettings(view) {
     <section class="card list-card">
       <button class="row-btn" data-change-pin><span>Change PIN</span><span class="chev">›</span></button>
       <div class="row-btn">
-        <span>Unlock with Face ID<span class="muted small block">${bioOn ? 'On. Your PIN still works too.' : 'Off. Optional, on top of your PIN.'}</span></span>
+        <span>Unlock with ${bioName}<span class="muted small block">${bioOn ? 'On. Your PIN still works too.' : 'Off. Optional, on top of your PIN.'}</span></span>
         <label class="switch"><input type="checkbox" data-bio ${bioOn ? 'checked' : ''}><i></i></label>
       </div>
       <button class="row-btn" data-lock><span>Lock now</span><span class="chev">›</span></button>
     </section>
-    <p class="hint left">Supplemental locks itself whenever your phone locks or you switch to another app.</p>` : ''}
+    <p class="hint left">${isComputer ? 'Supplemental locks itself whenever you switch tabs or minimize the window, and hides your journal while another window is in front.' : 'Supplemental locks itself whenever your phone locks or you switch to another app.'}</p>` : ''}
 
     <h3 class="section-label">Demo PIN</h3>
     <section class="card">
@@ -116,7 +117,7 @@ export function renderSettings(view) {
       <p class="small ${failedWeek ? 'warn' : 'muted'}">${failedWeek ? `${failedWeek} failed attempt${failedWeek === 1 ? '' : 's'} in the last 7 days.` : 'No failed attempts in the last 7 days.'}</p>
       ${list.length ? `<ul class="attempts">${list.map((a) => `
         <li><span class="dot ${a.ok ? 'ok' : 'bad'}"></span>
-          <span>${a.ok ? 'Success' : 'Failed'} <span class="muted">· ${esc(a.method)}</span></span>
+          <span>${a.ok ? 'Success' : 'Failed'} <span class="muted">· ${esc(a.method === 'Face ID' ? bioName : a.method)}</span></span>
           <time class="muted">${esc(new Date(a.t).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }))}</time></li>`).join('')}</ul>` : '<p class="muted small">No attempts yet.</p>'}
       <div class="row gap-s">
         ${all.length > 8 ? `<button class="link-btn" data-more>${showAllAttempts ? 'Show fewer' : `Show all ${all.length}`}</button>` : ''}
@@ -130,8 +131,9 @@ export function renderSettings(view) {
     <div class="set-pane" data-pane="help" ${settingsTab === 'help' ? '' : 'hidden'}>
     <h3 class="section-label">Help</h3>
     <section class="card list-card">
+      ${isComputer ? computerHelpHTML() : ''}
       <details class="collapse">
-        <summary>Add Supplemental to your Home Screen</summary>
+        <summary>${isComputer ? 'Put Supplemental on your phone' : 'Add Supplemental to your Home Screen'}</summary>
         <ol class="steps">
           <li>On iPhone, open this page in <strong>Safari</strong>.</li>
           <li>Tap the <strong>Share</strong> button ${shareIcon()} at the bottom of the screen. On newer iOS, tap the menu button ${menuIcon()} to the left of the address first, then Share.</li>
@@ -147,23 +149,25 @@ export function renderSettings(view) {
         <div class="prose small">
           <p><strong>What the app does</strong></p>
           <ul>
-            <li>Everything stays on this phone. There's no account and no server. The website only delivers the app's code and counts anonymous visits; your entries never go to it.</li>
+            <li>Everything stays on this ${device}. There's no account and no server. The website only delivers the app's code and counts anonymous visits; your entries never go to it.</li>
             <li>Entries are encrypted with AES-256-GCM before they're saved. The key comes from your PIN through Argon2id, a deliberately slow, memory-hungry function (64 MB and about half a second per guess).</li>
             <li>The lock screen slows down after 5 wrong tries, and every attempt is logged under Privacy.</li>
-            <li>It locks itself whenever your phone locks or you switch apps.</li>
+            <li>${isComputer ? 'It locks itself whenever you switch tabs or minimize the window.' : 'It locks itself whenever your phone locks or you switch apps.'}</li>
             <li>A demo PIN opens sample data instead, so you're never forced to open the real thing in front of someone.</li>
             <li>Backups can have their own passphrase, protected with an even slower setting.</li>
           </ul>
           <p><strong>Where it's weaker</strong></p>
           <ul>
             <li><strong>Short PINs can be guessed offline.</strong> The lock-screen delays only protect the app itself. Someone who copies the encrypted data can try every PIN on their own computer: a 6-digit PIN in hours on a laptop and well under an hour on a gaming graphics card. An 8-digit PIN takes about 100 times longer.</li>
-            <li><strong>Your phone passcode is the front door.</strong> Copying the data needs your unlocked phone and a computer. Keep your phone passcode private and different from your Supplemental PIN.</li>
+            ${isComputer
+              ? '<li><strong>Your computer account is the front door.</strong> Anyone using this computer while you\'re signed in could copy the encrypted data. Lock the screen when you step away, and keep your computer password different from your Supplemental PIN.</li>'
+              : '<li><strong>Your phone passcode is the front door.</strong> Copying the data needs your unlocked phone and a computer. Keep your phone passcode private and different from your Supplemental PIN.</li>'}
             <li><strong>Backup files travel.</strong> A backup protected only by your PIN has the same weakness, but anywhere the file ends up. A passphrase fixes this.</li>
-            <li><strong>Face ID can fall back to your phone passcode,</strong> so anyone who knows it could unlock the journal that way. Leave Face ID off if that matters.</li>
+            <li><strong>${bioName} can fall back to your ${passcode},</strong> so anyone who knows it could unlock the journal that way. Leave ${bioName} off if that matters.</li>
             <li><strong>The app's code comes from the website.</strong> Someone who took over the accounts that publish it could ship a version that records your PIN.</li>
             <li><strong>The demo PIN is stored with a fast hash,</strong> so it can be recovered easily. It only reveals the demo PIN and its length, never your journal.</li>
           </ul>
-          <p>For keeping a private journal private from people around you, this is strong. Against a determined attacker with your phone passcode and serious computing power, a PIN slows them down but won't stop them.</p>
+          <p>For keeping a private journal private from people around you, this is strong. Against a determined attacker with your ${passcode} and serious computing power, a PIN slows them down but won't stop them.</p>
         </div>
       </details>
       <details class="collapse">
@@ -180,7 +184,7 @@ export function renderSettings(view) {
             <li><strong>"Have we talked about it?"</strong> An issue you haven't raised yet is easy to resent and impossible to resolve. This keeps you honest about which ones are still only in your head.</li>
             <li><strong>Goals and the board.</strong> So it's not only about what's wrong. Things you're building toward deserve the same attention, and moving a card along is a small, real win.</li>
             <li><strong>The weekly review.</strong> Small, regular check-ins keep problems small. A few minutes a week beats a blowup every few months.</li>
-            <li><strong>Private by design.</strong> You can only be honest in a journal nobody else will read. That's why there's a PIN, a demo PIN for curious eyes, and nothing ever leaves this phone.</li>
+            <li><strong>Private by design.</strong> You can only be honest in a journal nobody else will read. That's why there's a PIN, a demo PIN for curious eyes, and nothing ever leaves this ${device}.</li>
           </ul>
           <p><strong>Getting the most from it</strong></p>
           <ul>
@@ -293,7 +297,7 @@ function storageHTML() {
     <section class="card storage">
       <div class="storage-bar"><i style="width:${Math.max(pct, 1).toFixed(1)}%"></i></div>
       <p class="small"><strong>${pct < 1 ? 'Less than 1%' : `${Math.round(pct)}%`} used</strong> · about ${yearsLeft >= 20 ? '20+' : Math.floor(yearsLeft)} years of daily entries left</p>
-      <p class="small muted">${(used / 1000).toFixed(0)} KB of roughly 5 MB this phone gives the app. Long notes use it faster.</p>
+      <p class="small muted">${(used / 1000).toFixed(0)} KB of roughly 5 MB this ${isComputer ? 'browser' : 'phone'} gives the app. Long notes use it faster.</p>
     </section>`;
 }
 
@@ -307,6 +311,19 @@ window.addEventListener('beforeinstallprompt', (e) => {
 });
 
 function installTipHTML() {
+  if (isMacSafari) return `<section class="card install-tip">
+      <img src="icons/apple-touch-icon.png" alt="" class="install-icon" width="64" height="64">
+      <div class="install-body">
+        <strong>Add Supplemental to your Dock</strong>
+        <p class="small muted">It opens in its own window like a real app, works offline, and keeps your journal in its own storage, where Safari won't clear it after a week away.</p>
+        <ol class="install-steps small">
+          <li>In the menu bar, choose <span class="kbd">File</span> › <span class="kbd">Add to Dock</span></li>
+          <li>Click <span class="kbd">Add</span></li>
+          <li>Open it from the Dock</li>
+        </ol>
+        <button class="btn primary block" data-install-done>Done, it's in my Dock</button>
+      </div>
+    </section>`;
   const steps = isAndroid
     ? `<li>Tap <span class="kbd">⋮</span> at the top right in Chrome</li>
           <li>Choose <span class="kbd">Install app</span> or <span class="kbd">Add to Home screen</span></li>
@@ -331,7 +348,27 @@ function showInstallTip() {
   const standalone = navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
   let done = false;
   try { done = localStorage.getItem('supplemental:ui:install-tip') === 'done'; } catch { /* private mode */ }
+  // Chrome and Edge on a computer share storage between the tab and an installed
+  // app, so there's nothing to gain by pushing an install there. Safari is different.
+  if (isComputer && !isMacSafari) return false;
   return !standalone && !done;
+}
+
+// On a computer the journal lives in the browser itself; say what that means.
+function computerHelpHTML() {
+  return `<details class="collapse">
+        <summary>Using Supplemental on a computer</summary>
+        <div class="prose small">
+          <p>Your journal lives in this browser on this computer. It doesn't sync with your phone or other browsers. To move it, export a backup here and import it there.</p>
+          <ul>
+            <li>A private or incognito window erases it when you close the window.</li>
+            <li>Clearing this browser's cookies and site data deletes it. Export a backup now and then.</li>
+            <li>Each browser, and each browser profile, keeps its own separate journal.</li>
+            ${isMac ? `<li><strong>In Safari,</strong> choose <strong>File › Add to Dock</strong> and use the journal from the Dock. Safari can clear data for sites you haven't opened in a week, and the Dock app keeps its own storage, separate from Safari tabs.</li>` : ''}
+            <li><strong>In Chrome or Edge,</strong> you can install it from the icon at the right end of the address bar. The installed app shares this browser's storage, so your journal comes with it.</li>
+          </ul>
+        </div>
+      </details>`;
 }
 
 // Safari's page menu button on newer iOS: three lines, each shorter than the last.
@@ -380,26 +417,28 @@ async function changePin() {
 async function toggleBio(input, view) {
   if (!input.checked) {
     vault.disableBio();
-    toast('Face ID unlock turned off');
+    toast(`${bioName} unlock turned off`);
     return renderSettings(view);
   }
   input.checked = false;
   if (!(await vault.bioSupported())) {
-    toast('Face ID is not available here');
+    toast(`${bioName} is not available here`);
     return;
   }
   const ok = await confirmSheet({
-    title: 'Turn on Face ID unlock?',
-    body: 'Your PIN keeps working. Heads up: if Face ID fails, iPhone can offer your phone passcode instead, so anyone who knows your phone passcode could open Supplemental this way.',
-    confirm: 'Turn on Face ID',
+    title: `Turn on ${bioName} unlock?`,
+    body: isComputer
+      ? `Your PIN keeps working. Heads up: if ${bioName} fails, your computer can offer its password or PIN instead, so anyone who knows it could open Supplemental this way.`
+      : 'Your PIN keeps working. Heads up: if Face ID fails, iPhone can offer your phone passcode instead, so anyone who knows your phone passcode could open Supplemental this way.',
+    confirm: `Turn on ${bioName}`,
   });
   if (!ok) return;
   try {
     await vault.enrollBio(state.session);
-    toast('Face ID unlock is on');
+    toast(`${bioName} unlock is on`);
   } catch (e) {
     console.error(e);
-    toast(e.name === 'NotAllowedError' ? 'Face ID setup cancelled' : e.message);
+    toast(e.name === 'NotAllowedError' ? `${bioName} setup cancelled` : e.message);
   }
   renderSettings(view);
 }

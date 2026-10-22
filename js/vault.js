@@ -7,6 +7,7 @@ import {
   KDF_DEFAULTS, randomBytes, toB64, fromB64, aesKey,
   deriveKeyFromPin, deriveKeyFromSecret, seal, unseal, sealJSON, unsealJSON,
 } from './crypto.js';
+import { isComputer, bioName } from './device.js';
 
 const KEYS = {
   vault: 'supplemental:vault',
@@ -118,6 +119,8 @@ export function eraseEverything() {
 
 // ---- Face ID (WebAuthn passkey + PRF extension) ----
 
+const bioNeeds = isComputer ? 'It needs an up-to-date Chrome, Edge or Safari.' : 'It needs iOS 18 or later.';
+
 export function bioEnrolled() {
   const r = readVault();
   return !!(r && r.bio);
@@ -145,7 +148,7 @@ async function prfSecret(credId, prfSalt) {
   });
   const out = assertion.getClientExtensionResults().prf?.results?.first;
   if (!out) {
-    const err = new Error('This device did not return a Face ID key. Face ID unlock needs iOS 18 or later.');
+    const err = new Error(`This device did not return a ${bioName} key. ${bioNeeds}`);
     err.code = 'NO_PRF';
     throw err;
   }
@@ -167,7 +170,7 @@ export async function enrollBio(session) {
   });
   const ext = cred.getClientExtensionResults();
   if (ext.prf && ext.prf.enabled === false) {
-    const err = new Error('Face ID unlock is not supported on this device. It needs iOS 18 or later.');
+    const err = new Error(`${bioName} unlock is not supported on this device. ${bioNeeds}`);
     err.code = 'NO_PRF';
     throw err;
   }

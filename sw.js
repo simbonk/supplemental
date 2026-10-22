@@ -1,6 +1,6 @@
 // Offline support: always try the network, fall back to the cached app shell.
 // Bump VERSION when files change so old caches are cleared.
-const VERSION = 'supplemental-v53';
+const VERSION = 'supplemental-v54';
 const SHELL = [
   './',
   'index.html',
@@ -25,6 +25,7 @@ const SHELL = [
   'js/weekly.js',
   'js/backup.js',
   'js/reminders.js',
+  'js/device.js',
   'icons/icon.svg',
   'icons/apple-touch-icon.png',
   'icons/icon-192.png',

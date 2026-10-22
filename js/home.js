@@ -5,6 +5,7 @@ import { openDay } from './day.js';
 import { shouldShowWeekly, weeklyHTML, bindWeekly } from './weekly.js';
 import { backupDue, backupNagHTML, bindBackupNag } from './backup.js';
 import { reviewLinkHTML } from './review.js';
+import { Tap } from './device.js';
 
 let monthOffset = 0; // 0 = the 12 months ending this month
 
@@ -37,7 +38,7 @@ export function renderHome(view) {
     </section>
 
     ${todayEntry ? '' : `<a class="today-cta" href="#new">
-      <div><strong>How was today?</strong><div class="muted small">Tap to log ${esc(fmtDate(today, { weekday: 'long' }))}</div></div>
+      <div><strong>How was today?</strong><div class="muted small">${Tap} to log ${esc(fmtDate(today, { weekday: 'long' }))}</div></div>
       <span class="today-plus">+</span></a>`}
 
     <section class="card heat-card">

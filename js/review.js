@@ -5,6 +5,7 @@
 import { state, nav } from './state.js';
 import { SCORE_COLORS, SCORE_LABELS, todayISO, parseISO, iso, fmtDate, daysBetween, feelingEmoji } from './model.js';
 import { esc, celebrate } from './ui.js';
+import { Tap } from './device.js';
 
 const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -101,7 +102,7 @@ export function renderReview(view, arg) {
   const soFar = month === thisMonth;
   const nextName = reviewMonthName(shiftMonth(month, 1));
   const introText = thanks
-    ? `A petal for every day, in the color you gave it, with what you were thankful for. Tap one to read the whole day.`
+    ? `A petal for every day, in the color you gave it, with what you were thankful for. ${Tap} one to read the whole day.`
     : 'A petal for every day, in the color you gave it. Add what you\'re thankful for when you log a day, and it will grow on the petal.';
 
   view.innerHTML = `

@@ -2,6 +2,7 @@ import { state, nav, persist } from './state.js';
 import { SCORE_COLORS, SCORE_LABELS, scoreClass, todayISO, fmtDate, openIssues, openGoals, feelingEmoji, ISSUE_STATUSES, GOAL_STATUSES } from './model.js';
 import { esc, openSheet, confirmSheet, toast, haptic } from './ui.js';
 import { openEditor } from './items.js';
+import { Tap } from './device.js';
 
 // ---------- New / edit day ----------
 
@@ -33,7 +34,7 @@ export function renderNewDay(view, dateArg) {
         <span class="field-label">How was today?</span>
         <div class="score-display">
           <span class="score-tile">–</span>
-          <span class="score-word muted">Tap a square</span>
+          <span class="score-word muted">${Tap} a square</span>
         </div>
         <div class="score-picker">
           ${SCORE_COLORS.slice(1).map((c, i) => `<button type="button" class="score-sq ${scoreClass(i + 1)}" data-score="${i + 1}" style="--c:${c}" aria-label="${i + 1} ${SCORE_LABELS[i + 1]}">${i + 1}</button>`).join('')}
@@ -73,7 +74,7 @@ export function renderNewDay(view, dateArg) {
     tile.textContent = draft.score || '–';
     tile.className = 'score-tile ' + (draft.score ? 'set ' + scoreClass(draft.score) : '');
     tile.style.setProperty('--c', draft.score ? SCORE_COLORS[draft.score] : '');
-    form.querySelector('.score-word').textContent = draft.score ? SCORE_LABELS[draft.score] : 'Tap a square';
+    form.querySelector('.score-word').textContent = draft.score ? SCORE_LABELS[draft.score] : `${Tap} a square`;
   };
   const paintLists = () => {
     const issues = existing && date !== today ? existing.issues : openIssues(state.data).map((i, idx, arr) => ({ ...i, rank: idx + 1, total: arr.length }));

@@ -76,6 +76,11 @@ export function openSheet(html, { onClose, tall = false } = {}) {
   return { el: wrap.querySelector('.sheet-body'), close };
 }
 
+// Escape closes the top sheet, for anyone with a keyboard.
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && openSheets.length) openSheets[openSheets.length - 1]();
+});
+
 export function closeAllSheets() {
   [...openSheets].forEach((c) => c());
 }

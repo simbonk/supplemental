@@ -706,3 +706,53 @@ a.row-btn { color: inherit; text-decoration: none; }
   .rv-h2, .rv-empty, .rv-end { opacity: 1; transform: none; transition: none; }
   .rv-scroll-cue span { animation: none; }
 }
+
+/* ---------- Desktop ----------
+   A wide window with a mouse or trackpad (see js/device.js). The tabs move into
+   the header as a top menu; phones and tablets never get the .desktop class. */
+.desktop .app-head {
+  justify-content: flex-start; height: 64px; padding: 0 24px;
+  max-width: 1100px; margin: 0 auto;
+}
+.desktop .tabbar {
+  position: static; display: flex; align-items: center; gap: 4px; margin-left: auto;
+  padding: 0; background: none; border: 0;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+.desktop .tab {
+  flex-direction: row; gap: 8px; padding: 8px 14px; border-radius: 999px;
+  font-size: 14.5px; transition: background .15s, color .15s;
+}
+.desktop .tab svg { width: 18px; height: 18px; padding: 0; background: none; }
+.desktop .tab:hover { background: var(--surface-2); color: var(--text); }
+.desktop .tab.active { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
+.desktop .tab.active svg { background: none; }
+.desktop .tab-new { order: 1; margin-left: 10px; padding: 0; }
+.desktop .tab-new:hover { background: none; }
+.desktop .tab-new .plus {
+  width: auto; height: 38px; padding: 0 16px 0 12px; gap: 6px; border-radius: 12px;
+  display: inline-flex; align-items: center; font-size: 22px; font-weight: 400;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--s6) 30%, transparent);
+  transition: transform .15s, box-shadow .15s;
+}
+.desktop .tab-new .plus::after { content: 'New day'; font-size: 14.5px; font-weight: 650; }
+.desktop .tab-new:hover .plus { transform: translateY(-1px); box-shadow: 0 6px 16px color-mix(in srgb, var(--s6) 40%, transparent); }
+.desktop .tab-new.active .plus { box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--s6); }
+.desktop .view { padding: 28px 24px 64px; }
+.desktop .toast { bottom: 32px; }
+
+/* Sheets become centered dialogs. */
+.desktop .sheet {
+  top: 50%; bottom: auto; border-radius: 22px; max-width: 560px;
+  max-height: min(calc(var(--vv-h, 100dvh) - 64px), 760px);
+  transform: translateY(-46%) scale(.98); opacity: 0;
+  transition: transform .22s cubic-bezier(.2, .9, .3, 1), opacity .18s;
+  box-shadow: 0 24px 60px rgba(10, 5, 20, .3);
+}
+.desktop .sheet.tall { height: min(calc(var(--vv-h, 100dvh) - 64px), 860px); max-height: none; max-width: 640px; }
+.desktop .sheet-wrap.show .sheet { transform: translateY(-50%); opacity: 1; }
+.desktop .sheet .sheet-grabber { visibility: hidden; height: 0; margin: 0; }
+.desktop .sheet-body { padding-bottom: 24px; }
+
+/* Pointer niceties. */
+.desktop .row-btn:hover { background: color-mix(in srgb, var(--surface-2) 60%, transparent); }
